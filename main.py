@@ -12,9 +12,16 @@ st.set_page_config(layout="wide",
                    page_title="I am a great investor")
 
 
-currently_p1 = """the"""
-currently_p2 = """the"""
-current_positions = """the"""
+currently_p1 = """Back in the red. This bot fucked me, the one time I decide to trust it, I lose big.
+Until now I was just laughing along, buying whatever BS had two mentions, then this obsession with UWMC started.
+Suddenly the mentions for this stock were through the roof and I started drinking the koolaid again. 
+I learned nothing from Gamestonk."""
+current_positions = """One UWMC call that has lost about 50% of its value. 
+Calls on SPY. 
+Some other meme stocks sprinked in. No large positions."""
+currently_p2 = """I need time to recover from this betrayal. 
+One thing I need to figure out is how the hell I'm going to handle exiting positions."""
+
 
 big_tuna = pd.read_csv("wsb_ticker_mentions.csv")
 header = st.beta_container()
@@ -24,9 +31,6 @@ about = st.beta_container()
 
 st.markdown(
     f"""
-    <iframe src="iamagreatinvestor.com">
-        
-    </iframe>
     <style>
         .reportview-container .main .block-container{{
             padding-top: {5}px;
@@ -34,11 +38,27 @@ st.markdown(
         }}
     </style>
 """,
-    unsafe_allow_html=True,
-)
+    unsafe_allow_html=True)
+page_bg_img = '''
+<style>
+body {
+background-image: "images/school_athens.png";
+background-size: cover;
+}
+</style>
+'''
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
+
+
+
+
+
+
+
 
 header_image = Image.open("images/school_athens.png")
-prof_pic = Image.open("images/prof_pic.png")
+prof_pic = Image.open("images/prof_pic2.png")
 date = datetime.now().strftime('%m/%d/%y')
 
 
@@ -48,7 +68,6 @@ with header:
 #doing a calculation without date column
 bt_date = big_tuna.pop('date_hour')
 big_tuna = big_tuna.drop('GME ', axis = 1)
-
 tuna_head = big_tuna.iloc[-1].sort_values(ascending=False).head(10)
 big_tuna['date_hour'] = bt_date
 
@@ -119,7 +138,7 @@ with analysis:
         col2_2.pyplot(fig)
 
 
-col3_1, col3_2 = st.beta_columns((1,1))
+col3_1, col3_2 = st.beta_columns((3,1))
 
 with about:
     with col3_1:
@@ -135,5 +154,5 @@ with about:
         """)
 
     with col3_2:
-        col3_2.subheader("me")
+        col3_2.subheader("Me")
         st.image(prof_pic, use_column_width = True)
