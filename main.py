@@ -39,15 +39,12 @@ st.markdown(
     </style>
 """,
     unsafe_allow_html=True)
-page_bg_img = '''
-<style>
-body {
-background-image: "images/school_athens.png";
-background-size: cover;
-}
-</style>
-'''
-st.markdown(page_bg_img, unsafe_allow_html=True)
+hide_streamlit_style = """
+    <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+    </style>"""
+# st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 
 
