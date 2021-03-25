@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import math
 import seaborn as sns
 from datetime import datetime
+import altair as alt
 
 st.set_page_config(layout="wide",
                    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
@@ -39,11 +40,6 @@ st.markdown(
     </style>
 """,
     unsafe_allow_html=True)
-hide_streamlit_style = """
-    <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-    </style>"""
 # st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 
@@ -65,7 +61,7 @@ with header:
 #doing a calculation without date column
 bt_date = big_tuna.pop('date_hour')
 big_tuna = big_tuna.drop('GME ', axis = 1)
-tuna_head = big_tuna.iloc[-1].sort_values(ascending=False).head(10)
+tuna_chunk = big_tuna.iloc[:, :10].tail(10)
 big_tuna['date_hour'] = bt_date
 
 
@@ -81,62 +77,47 @@ with currently:
         st.write(currently_p2)
 
 
+
+
     with col1_2:
-        fig, ax = plt.subplots()
-        fig.suptitle("trending on wsb")
+        tuna_head = pd.DataFrame({"stock" : tuna_chunk.columns,
+                                  "mentions" : big_tuna.iloc[-1,:10]
+                                  })
+        c = alt.Chart(tuna_head).mark_bar().encode(
+            x = 'stock',
+            y = 'mentions'
+        ).properties(
+            height = 500
+        )
+        st.altair_chart(c, use_container_width=True)
 
-        s = sns.barplot(x= tuna_head.index,
-                y= tuna_head.values,
-                color='gold',
-                ax=ax)
-        #s.set_ylim(0)
-        ax.set_xlabel('ticker')
-        ax.set_ylabel('mentions')
-        st.pyplot(fig)
 
 
-col2_1, col2_2 = st.beta_columns((1,5))
+
+
+
+col2_1, col2_2 = st.beta_columns((3,5))
 with analysis:
     col2_1.subheader("hot stocks")
     col2_2.subheader("chart")
     with col2_1:
-        tuna_head
+        tuna_head.values
+
+
     with col2_2:
 
-        fig, ax = plt.subplots(figsize = (9,4))
+        c = alt.Chart(big_tuna).mark_line().encode(
+            x="date_hour:T",
+            y="AMC "
+        ).interactive()
+        st.altair_chart(c, use_container_width=True)
 
-        top_5 = big_tuna.iloc[:, :5]
-        first = big_tuna.iloc[:, 0]
-        second = big_tuna.iloc[:, 1]
-        third = big_tuna.iloc[:, 2]
-        fourth = big_tuna.iloc[:, 3]
-        fifth = big_tuna.iloc[:, 4]
-        plt.xlim(0, len(big_tuna))
 
-        plt.tight_layout()
-        plt.xticks(rotation=0)
-        ax.plot(first, color='green')
-        ax.plot(second, color='red')
-        ax.plot(third, color='purple')
-        ax.plot(fourth, color='orange')
-        ax.plot(fifth, color='blue')
-        ax.set(ylabel='mentions',
-               title='history of mentions on r/wsb',
-               yscale ='linear')
-        ax.legend(top_5.columns)
 
-        plt.xticks(ticks = np.arange(0,len(big_tuna)), labels = big_tuna['date_hour'])
-        n = math.floor(len(big_tuna) / 6)
-        for index, label in enumerate(ax.xaxis.get_ticklabels()):
-            if index % n != 0:
-                label.set_visible(False)
 
-        ax.grid()
-        col2_2.pyplot(fig)
 
 
 col3_1, col3_2 = st.beta_columns((3,1))
-
 with about:
     with col3_1:
         col3_1.subheader("About the project")

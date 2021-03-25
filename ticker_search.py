@@ -72,11 +72,12 @@ def ticker_searcher(post_lim=50):
 
     #organize big_tuna by whatever was mentioned most in latest row
     big_tuna = big_tuna.sort_values(by = new_row, axis=1, ascending=False)
+    big_tuna = big_tuna[:].astype(int)
 
     #add the date col back in and give the new row current time.
     big_tuna['date_hour'] = bt_date
     big_tuna.at[new_row, 'date_hour'] = date_w_hour
-    # print(big_tuna)
+    print(big_tuna)
 
     big_tuna.to_csv("/Users/gibson/Projects/streamlit_site/wsb_ticker_mentions.csv", index=False, na_rep=0)
 
