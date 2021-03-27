@@ -58,7 +58,7 @@ def ticker_searcher(post_lim=50):
             repeats.append(ticker)
             # print(ticker, mentions.count(ticker))
 
-    big_tuna = pd.read_csv("/Users/gibson/Projects/streamlit_site/wsb_ticker_mentions.csv")
+    big_tuna = pd.read_csv("wsb_ticker_mentions.csv")
     #popping this date column so it doesn't fuck my calculations.
     bt_date = big_tuna.pop('date_hour')
 
@@ -78,9 +78,9 @@ def ticker_searcher(post_lim=50):
     big_tuna = big_tuna[:].astype(int)
     big_tuna['date_hour'] = bt_date
     big_tuna.at[new_row, 'date_hour'] = date_w_hour
-    print(big_tuna)
+    # print(big_tuna)
 
-    big_tuna.to_csv("/Users/gibson/Projects/streamlit_site/wsb_ticker_mentions.csv", index=False, na_rep=0)
+    big_tuna.to_csv("wsb_ticker_mentions.csv", index=False, na_rep=0)
 
 
 

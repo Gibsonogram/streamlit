@@ -4,10 +4,8 @@ import pandas as pd
 from PIL import Image
 import matplotlib.pyplot as plt
 import math
-import seaborn as sns
 from datetime import datetime
 import altair as alt
-import time
 
 st.set_page_config(layout="wide",
                    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
@@ -44,7 +42,6 @@ st.markdown(
         .header{{
             position: relative;
             text-align: center;
-            margin-top: -140px;
         }}
         .centered {{
             position: absolute;
@@ -136,7 +133,7 @@ with analysis:
 
 
 
-col3_1, col3_2 = st.beta_columns((3,1))
+col3_1 = st.beta_container()
 with about:
     with col3_1:
         col3_1.subheader("About the project")
@@ -149,20 +146,5 @@ with about:
         Feel free to check back and watch as my account plummets or soars. This is not financial advice, I just wanted to see what would happen
         and I lost most of my money already so... 
         """)
-
-    with col3_2:
-        col3_2.subheader("Me")
-
-
-        @st.cache  # 👈 Added this
-        def expensive_computation(a, b):
-            time.sleep(2)  # This makes the function take 2s to run
-            return a * b
-
-        a = 2
-        b = 21
-        res = expensive_computation(a, b)
-
-        st.write("Result:", res)
 
 
