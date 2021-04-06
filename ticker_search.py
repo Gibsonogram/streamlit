@@ -1,6 +1,7 @@
 import praw as pr
 import pandas as pd
 from datetime import datetime
+import time
 
 reddit = pr.Reddit(client_id = '5lMt_1-JSba0hw',
                    client_secret = 'tkWQfmM_67BLdoxrOpAVQb7V13GsLQ',
@@ -14,6 +15,8 @@ date_w_hour = datetime.now().strftime('%m/%d %H:00')
 richard = pd.read_csv("ticker_list.csv")
 richard.columns = ['tickers']
 tickers_final = richard['tickers'].tolist()
+
+start = time.perf_counter()
 
 def ticker_searcher(post_lim=50):
     mentions = []
@@ -85,3 +88,7 @@ def ticker_searcher(post_lim=50):
 
 
 ticker_searcher(500)
+
+finish = time.perf_counter()
+
+print(f'function took {round(finish - start, 2)} seconds' )
