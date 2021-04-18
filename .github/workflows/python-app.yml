@@ -20,4 +20,4 @@ jobs:
         python-version: 3.9
     - name: run ticker_search
       run: |
-        python ticker_search.py
+        python streamlit/ticker_search.py
