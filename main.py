@@ -2,14 +2,13 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 from PIL import Image
-import matplotlib.pyplot as plt
-import math
 from datetime import datetime
 import altair as alt
 
 st.set_page_config(layout="wide",
                    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
                    page_title="I am a great investor")
+
 
 currently_p1 = """Back in the red. This bot fucked me, the one time I decide to trust it, I lose big.
 Until now I was just laughing along, buying whatever BS had two mentions, then this obsession with UWMC started.
@@ -146,5 +145,3 @@ with about:
         Feel free to check back and watch as my account plummets or soars. This is not financial advice, I just wanted to see what would happen
         and I lost most of my money already so... 
         """)
-
-

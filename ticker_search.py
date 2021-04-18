@@ -88,7 +88,6 @@ def ticker_searcher(post_lim=50):
 
 
 ticker_searcher(500)
-
 finish = time.perf_counter()
 
-print(f'function took {round(finish - start, 2)} seconds' )
+print(f'function took {round(finish - start, 2)} seconds')
