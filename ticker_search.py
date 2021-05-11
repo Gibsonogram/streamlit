@@ -18,6 +18,7 @@ tickers_final = richard['tickers'].tolist()
 
 start = time.perf_counter()
 
+
 def ticker_searcher(post_lim=50):
     mentions = []
     tickoo = tickers_final[:4221]
@@ -29,17 +30,16 @@ def ticker_searcher(post_lim=50):
     mentions_wo_space = []
 
     for submi in wsb.new(limit=post_lim):
-        #this litle ditty adds any post beginning with a ticker to mentions_wo_space
+        # this litle ditty adds any post beginning with a ticker to mentions_wo_space
         for ticker in tickoo:
-            if ticker in submi.title[:6] \
-            and ticker[0] == submi.title[0]:
+            if ticker in submi.title[:6] and ticker[0] == submi.title[0]:
                 mentions_wo_space.append(ticker)
                 break
-        #this big boy does the main search
+        # this big boy does the main search
         mention_in_submission = "just initializing"
         for ticker in tickers_final:
             if ticker in submi.title:
-                #following if block is needed because both 'stock' and '$stock' are in tickers_final
+                # following if block is needed because both 'stock' and '$stock' are in tickers_final
                 if ticker == "$" + mention_in_submission:
                     continue
                 mention_in_submission = ticker
@@ -62,10 +62,10 @@ def ticker_searcher(post_lim=50):
             # print(ticker, mentions.count(ticker))
 
     big_tuna = pd.read_csv("wsb_ticker_mentions.csv")
-    #popping this date column so it doesn't fuck my calculations.
+    # popping this date column so it doesn't fuck my calculations.
     bt_date = big_tuna.pop('date_hour')
 
-    #this updates the dataframe and writes the new version to the csv
+    # this updates the dataframe and writes the new version to the csv
     new_row = len(big_tuna)
     for ticker in mentions:
         if ticker in mentions:
@@ -73,10 +73,10 @@ def ticker_searcher(post_lim=50):
             if ticker not in big_tuna.columns.tolist():
                 big_tuna[ticker] = 0
 
-    #organize big_tuna by whatever was mentioned most in latest row
+    # organize big_tuna by whatever was mentioned most in latest row
     big_tuna = big_tuna.sort_values(by = new_row, axis=1, ascending=False)
 
-    #add the date col back in and other tidying.
+    # add the date col back in and other tidying.
     big_tuna = big_tuna.fillna(0)
     big_tuna = big_tuna[:].astype(int)
     big_tuna['date_hour'] = bt_date
@@ -90,4 +90,4 @@ def ticker_searcher(post_lim=50):
 ticker_searcher(500)
 finish = time.perf_counter()
 
-print(f'function took {round(finish - start, 2)} seconds')
+# print(f'function took {round(finish - start, 2)} seconds')
