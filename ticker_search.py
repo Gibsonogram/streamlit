@@ -74,7 +74,7 @@ def ticker_searcher(post_lim=50):
                 big_tuna[ticker] = 0
 
     # organize big_tuna by whatever was mentioned most in latest row
-    big_tuna = big_tuna.sort_values(by = new_row, axis=1, ascending=False)
+    big_tuna = big_tuna.sort_values(by=new_row, axis=1, ascending=False)
 
     # add the date col back in and other tidying.
     big_tuna = big_tuna.fillna(0)
@@ -89,5 +89,6 @@ def ticker_searcher(post_lim=50):
 
 ticker_searcher(500)
 finish = time.perf_counter()
+print(finish)
 
 # print(f'function took {round(finish - start, 2)} seconds')
