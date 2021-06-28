@@ -7,18 +7,17 @@ import altair as alt
 
 st.set_page_config(layout="wide",
                    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
-                   page_title="I am a great investor")
+                   page_title="The college try")
 
 
-currently_p1 = """Back in the red. This bot fucked me, the one time I decide to trust it, I lose big.
-Until now I was just laughing along, buying whatever BS had two mentions, then this obsession with UWMC started.
-Suddenly the mentions for this stock were through the roof and I started drinking the koolaid again. 
-I learned nothing from Gamestonk."""
-current_positions = """One UWMC call that has lost about 50% of its value. 
-Calls on SPY. 
-Some other meme stocks sprinked in. No large positions."""
-currently_p2 = """I need time to recover from this betrayal. 
-One thing I need to figure out is how the hell I'm going to handle exiting positions."""
+currently_p1 = """This site is getting a final update. It will remain static after today, however the project continues! 
+The analysis I begain here will be moving to my new website.
+A website that is, dare I say, superior."""
+current_positions = """After months of using this bots advice intermittently, growing angry, then weary, I have halted the experiment for now. 
+I am not trading based on the bot any longer. 
+I am however going to do a rigorous analysis on price history vs r/wallstreetbets mentions. 
+I will be showing just how correlated these variables are, and whether or not this strategy is truly viable. 
+Here is a link to the new site, where the data from this project has been moved, and analysis continues:"""
 
 
 big_tuna = pd.read_csv("wsb_ticker_mentions.csv")
@@ -62,7 +61,7 @@ with header:
     st.markdown(f"""
         <div class = "header">
             <h1>
-                I am a great investor
+                The old college try
             </h1>
         </div>
         """, unsafe_allow_html=True)
@@ -73,13 +72,14 @@ big_tuna['date_hour'] = bt_date
 
 col1_1, col1_2 = st.beta_columns((7,6))
 with currently:
-    st.header("Currently")
+    st.header("A final update on the project")
     with col1_1:
         col1_1.subheader(date)
         st.write(currently_p1)
-        st.subheader("Current positions")
+        st.subheader("Thoughts")
         st.write(current_positions)
-        st.write(currently_p2)
+        link = '[put my new site link here](http://github.com)'
+        st.markdown(link, unsafe_allow_html=True) 
 
     with col1_2:
         tuna_chunk = big_tuna.iloc[:, :10].tail(10)
@@ -101,11 +101,13 @@ with currently:
 col2_1, col2_2 = st.beta_columns((1,6))
 with analysis:
     top_5 = big_tuna.iloc[:,:5]
-    # col2_1.subheader("hot stocks")
-    col2_2.subheader("chart")
+    top_5_ls = top_5.iloc[-10:,:].transpose()
+    top_5_ls = top_5_ls
+    col2_1.subheader("top 5 over the last week")
+    col2_2.subheader("most mentioned stocks")
     with col2_1:
         top_15 = big_tuna.iloc[:,:15].columns.tolist()
-        top_15_selector = st.selectbox('select chart', top_15, index=0)
+        top_15_selector = st.write(top_5_ls)
 
 
     with col2_2:
@@ -136,12 +138,17 @@ col3_1 = st.beta_container()
 with about:
     with col3_1:
         col3_1.subheader("About the project")
-        st.write("""I started this project after I took an autists advice and invested in GME. I watched as my account soared to heights it had never seen.
-        Then I watched as it slowly crumbled and fell back to earth. Then I watched as it sank below the earth and turned up somewhere in hell.
-        Now, I have learned all the lessons. I am now completely qualified to make decisions about stonks and obviously options. 
-        I know everything and I will succeed this time. I need only listen to the autists.
+        st.write("""I started this project shortly after joining r/wallstreetbets, a community on reddit devoted to some of the worst trading tactics imaginable.
+        With an applied math degree and too much time on my hands, I decided to learn a bit of web developent. I quickly got in way over my head. 
+        While the idea for this site began as a blog-style trading experiment using a web-scraper, I couldn't resist making it about data science.
+        I began stockpiling data after the gamestop shorting event in January-February 2021. I watched as my investment account soared to heights it had never seen.
+        Then I watched as it slowly crumbled and fell back to earth. Then I watched as it sank below the earth and turned up somewhere in hell. 
+        There is nothing left to do now but lose the rest of it to insane plays.
         """)
-        st.write("""So I made a bot to judge the sentiment of given stocks on r/wallstreetbets and I will only take advice from there. 
-        Feel free to check back and watch as my account plummets or soars. This is not financial advice, I just wanted to see what would happen
-        and I lost most of my money already so... 
+        st.write("""So I made a bot that tells me the most mentioned stocks on r/wallstreetbets and I will only take advice from there. 
+        Feel free to check back and watch as my account plummets or soars. 
+        This is not financial advice, I just wanted to see what would happen if I listened to the worst investors on the internet.
         """)
+        st.write("""NOTE: This site is no longer being updated, the project continues here:
+        """)
+        st.markdown(link, unsafe_allow_html=True)
