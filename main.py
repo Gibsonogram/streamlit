@@ -7,7 +7,7 @@ import altair as alt
 
 st.set_page_config(layout="wide",
                    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
-                   page_title="The college try")
+                   page_title="I am a great investor")
 
 
 currently_p1 = """This site is getting a final update. It will remain static after today, however the project continues! 

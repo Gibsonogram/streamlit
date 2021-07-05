@@ -36,7 +36,7 @@ def ticker_searcher(post_lim=50):
                 mentions_wo_space.append(ticker)
                 break
         # this big boy does the main search
-        mention_in_submission = "just initializing"
+        mention_in_submission = "j"
         for ticker in tickers_final:
             if ticker in submi.title:
                 # following if block is needed because both 'stock' and '$stock' are in tickers_final
