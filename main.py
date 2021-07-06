@@ -10,11 +10,9 @@ st.set_page_config(layout="wide",
                    page_title="I am a great investor")
 
 
-currently_p1 = """This site is getting a final update. It will remain static after today, however the project continues! 
-The analysis I begain here will be moving to my new website.
-A website that is, dare I say, superior."""
-current_positions = """After months of using this bots advice intermittently, growing angry, then weary, I have halted the experiment for now. 
-I am not trading based on the bot any longer. 
+currently_p1 = """This site is getting a final update. It will remain static after today, however, analysis on the results are available below."""
+
+results = """After months of using this bots advice intermittently, growing angry, then weary, I have gathered enough results to stop the experiment. 
 I am however going to do a rigorous analysis on price history vs r/wallstreetbets mentions. 
 I will be showing just how correlated these variables are, and whether or not this strategy is truly viable. 
 Here is a link to the new site, where the data from this project has been moved, and analysis continues:"""
@@ -61,7 +59,7 @@ with header:
     st.markdown(f"""
         <div class = "header">
             <h1>
-                The old college try
+                I am a great investor
             </h1>
         </div>
         """, unsafe_allow_html=True)
@@ -76,26 +74,37 @@ with currently:
     with col1_1:
         col1_1.subheader(date)
         st.write(currently_p1)
-        st.subheader("Thoughts")
-        st.write(current_positions)
-        link = '[put my new site link here](http://github.com)'
+        st.subheader("Results")
+        st.write(results)
+        link = '[Project repository](https://github.com/Gibsonogram/streamlit)'
         st.markdown(link, unsafe_allow_html=True) 
 
     with col1_2:
-        tuna_chunk = big_tuna.iloc[:, :10].tail(10)
-        tuna_head = pd.DataFrame({"stock" : tuna_chunk.columns,
-                                  "mentions" : big_tuna.iloc[-1,:10]
-                                  })
-        current_chart = alt.Chart(tuna_head).mark_bar(
+        # most mentioned over the course of proj
+        big_tun = big_tuna.drop('date_hour', axis=1)
+
+        avg_arr = []
+        for col in big_tun:
+            col_sum = 0
+            for item in big_tun[col]:
+                col_sum += item
+            avg = round(col_sum / len(big_tun),2)
+            avg_arr.append([avg, col])
+        
+        most_mentioned = [[i,j] for i,j in avg_arr if i > 3.5]
+        most_mentioned = pd.DataFrame(most_mentioned)
+        most_mentioned.columns = ['average mentions', 'stock']
+        
+        avg_mentions_chart = alt.Chart(most_mentioned).mark_bar(
             cornerRadiusTopLeft = 5,
             cornerRadiusTopRight= 5,
             color='6fb1ce').encode(
                 x = 'stock',
-                y = 'mentions').properties(height = 500)
+                y = 'average mentions').properties(height = 500)
 
         # @st.cache(suppress_st_warning=True)
         def chart_current():
-            st.altair_chart(current_chart, use_container_width=True)
+            st.altair_chart(avg_mentions_chart, use_container_width=True)
         chart_current()
 
 col2_1, col2_2 = st.beta_columns((1,6))

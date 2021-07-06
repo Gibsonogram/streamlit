@@ -1,22 +1,20 @@
 import pandas as pd
 from datetime import datetime
 import numpy as np
-import altair as alt
-import altair_viewer
-import time
-
-goop = [[1,2,3],
-        [4,5,6]]
-
-def goop_appender(ls):
-    goop.append(ls)
-
-
 
 big_tuna = pd.read_csv("wsb_ticker_mentions.csv")
-print(big_tuna)
-# big_tuna = big_tuna.drop(big_tuna.index[50:])
-print(big_tuna)
+big_tuna = big_tuna.drop('date_hour', axis=1)
+avg_arr = []
 
-# big_tuna.to_csv("wsb_ticker_mentions.csv", index=False, na_rep=0)
+for col in big_tuna:
+    col_sum = 0
+    for item in big_tuna[col]:
+        col_sum += item
+    avg = round(col_sum / len(big_tuna),2)
+    avg_arr.append([avg, col])
 
+most_mentioned = [[i,j] for i,j in avg_arr if i > 3.5]
+most_mentioned = pd.DataFrame(most_mentioned)
+
+
+print(most_mentioned)

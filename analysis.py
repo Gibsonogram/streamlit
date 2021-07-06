@@ -7,6 +7,8 @@ from pandas.core.series import Series
 # params
 ticker = 'GME'
 plt.figure(figsize=(11,5))
+shift_num = 30
+
 
 
 # get dat data
@@ -60,18 +62,19 @@ csv_data = pd.Series(v, index=d)
 
 
 
-shift_num = 31
 shifted_back = mention_series.shift(-shift_num)
 # print(mention_series, shifted_back)
 # that was a shit show...
 x = Series.corr(shifted_back, csv_data)
 print(shift_num, x)
 
-
+"""
 plt.scatter(csv_data.values, shifted_back.values)
 plt.xlabel('price')
-plt.ylabel(f'{ticker} mentions')
+plt.ylabel(f'mentions on wsb')
+plt.title(f'{ticker}')
 plt.show()
+"""
 
 """
 # this might come in handy... later
