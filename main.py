@@ -1,3 +1,4 @@
+from matplotlib.pyplot import title
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -20,7 +21,8 @@ Here is a link to the new site, where the data from this project has been moved,
 
 big_tuna = pd.read_csv("wsb_ticker_mentions.csv")
 header = st.beta_container()
-currently = st.beta_container()
+firstly = st.beta_container()
+secondly = st.beta_container()
 analysis = st.beta_container()
 about = st.beta_container()
 
@@ -64,12 +66,12 @@ with header:
         </div>
         """, unsafe_allow_html=True)
 
-#doing a calculation without date column
+#I'm gonna want this date column for stuff
 bt_date = big_tuna.pop('date_hour')
 big_tuna['date_hour'] = bt_date
 
 col1_1, col1_2 = st.beta_columns((7,6))
-with currently:
+with firstly:
     st.header("A final update on the project")
     with col1_1:
         col1_1.subheader(date)
@@ -93,14 +95,22 @@ with currently:
         
         most_mentioned = [[i,j] for i,j in avg_arr if i > 3.5]
         most_mentioned = pd.DataFrame(most_mentioned)
-        most_mentioned.columns = ['average mentions', 'stock']
+        most_mentioned.columns = ['mentions', 'stock']
         
+        st.markdown(f"""
+        <div class = "header">
+            <h3>
+                Average mentions per day
+            </h3>
+        </div>
+        """, unsafe_allow_html=True)
+
         avg_mentions_chart = alt.Chart(most_mentioned).mark_bar(
             cornerRadiusTopLeft = 5,
             cornerRadiusTopRight= 5,
             color='6fb1ce').encode(
                 x = 'stock',
-                y = 'average mentions').properties(height = 500)
+                y = 'mentions').properties(height = 500)
 
         # @st.cache(suppress_st_warning=True)
         def chart_current():
@@ -108,45 +118,65 @@ with currently:
         chart_current()
 
 col2_1, col2_2 = st.beta_columns((1,6))
-with analysis:
+with secondly:
     top_5 = big_tuna.iloc[:,:5]
-    top_5_ls = top_5.iloc[-10:,:].transpose()
-    top_5_ls = top_5_ls
-    col2_1.subheader("top 5 over the last week")
-    col2_2.subheader("most mentioned stocks")
+    top_5_10 = big_tuna.iloc[:,5:10]
     with col2_1:
-        top_15 = big_tuna.iloc[:,:15].columns.tolist()
-        top_15_selector = st.write(top_5_ls)
-
+        bt_cols = list(big_tuna.columns)
+        bt_cols.insert(0, 'top 6-10')
+        bt_cols.insert(0, 'top 1-5')
+        selector = st.selectbox('view history of:', options=bt_cols)
 
     with col2_2:
-
-        top_5['date'] = bt_date
-
-        top_5 = top_5.melt('date', var_name='ticker', value_name='mentions')
-        top_5_chart = alt.Chart(top_5).mark_line().encode(
+        st.markdown("<h3 style='text-align: center; color: black;'>History</h3>", unsafe_allow_html=True)
+        if selector == 'top 1-5':
+            top_5['date'] = bt_date
+            top_5 = top_5.melt('date', var_name='ticker', value_name='mentions')
+            chart_data = top_5
+        elif selector == 'top 6-10':
+            top_5_10['date'] = bt_date
+            top_5_10 = top_5_10.melt('date', var_name='ticker', value_name='mentions')
+            chart_data = top_5_10
+        else:
+            ind_hist = pd.DataFrame()
+            ind_hist['mentions'] = big_tuna[selector]
+            ind_hist['date'] = bt_date
+            ind_hist['ticker'] = selector
+            chart_data = ind_hist
+        
+        interactive_chart = alt.Chart(chart_data).mark_line().encode(
             x = alt.X('date:T',
                       scale=alt.Scale(
-                          domain = [big_tuna.iat[len(big_tuna) - 20,-1],
+                          domain = [big_tuna.iat[1 - len(big_tuna),-1],
                                     big_tuna.iat[-1,-1]])),
             y = 'mentions:Q',
             color = 'ticker:N'
         ).interactive(bind_y = False)
 
-        st.altair_chart(top_5_chart, use_container_width=True)
+        st.altair_chart(interactive_chart, use_container_width=True)
 
 
-
-
-
-
-
-
-
-col3_1 = st.beta_container()
-with about:
+col3_1, col3_2, col3_3 = st.beta_columns((1,1,1))
+with analysis:
     with col3_1:
-        col3_1.subheader("About the project")
+        st.subheader('high mentions')
+    with col3_2:
+        st.write('Results')
+        st.subheader("high mentions (left)")
+        st.subheader("low mentions (right)")
+    with col3_3:
+        st.subheader('low mention stocks')
+    
+
+
+
+
+
+col4_1 = st.beta_container()
+
+with about:
+    with col4_1:
+        col4_1.subheader("About the project")
         st.write("""I started this project shortly after joining r/wallstreetbets, a community on reddit devoted to some of the worst trading tactics imaginable.
         With an applied math degree and too much time on my hands, I decided to learn a bit of web developent. I quickly got in way over my head. 
         While the idea for this site began as a blog-style trading experiment using a web-scraper, I couldn't resist making it about data science.
