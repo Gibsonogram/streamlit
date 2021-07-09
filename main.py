@@ -11,14 +11,6 @@ st.set_page_config(layout="wide",
                    page_title="I am a great investor")
 
 
-currently_p1 = """This site is getting a final update. It will remain static after today, however, analysis on the results are available below."""
-
-results = """After months of using this bots advice intermittently, growing angry, then weary, I have gathered enough results to stop the experiment. 
-I am however going to do a rigorous analysis on price history vs r/wallstreetbets mentions. 
-I will be showing just how correlated these variables are, and whether or not this strategy is truly viable. 
-Here is a link to the new site, where the data from this project has been moved, and analysis continues:"""
-
-
 big_tuna = pd.read_csv("wsb_ticker_mentions.csv")
 header = st.beta_container()
 firstly = st.beta_container()
@@ -74,10 +66,24 @@ col1_1, col1_2 = st.beta_columns((7,6))
 with firstly:
     st.header("A final update on the project")
     with col1_1:
+        p1 = """This site is getting a final update. 
+        It will remain static after today, however, analysis on the results are available below."""
+
+        results = """After months of using this bots advice intermittently, growing angry, then weary, I have gathered enough results to stop the experiment. 
+        I am however going to do a rigorous analysis on price history vs r/wallstreetbets mentions. 
+        I will be showing just how correlated these variables are, and whether or not this strategy is truly viable. 
+        Here is a link to the new site, where the data from this project has been moved, and analysis continues:"""
+
+        about_data = """The data obtained for this project is from a simple web scraper. Using the python reddit api, I scraped wsb for mentions of stocks and general sentiment. 
+        The bot was run roughly once a day, (N=50) toward the end of the Nasdaq trading period. The stock data was obtained with yahoo finance in the form of daily closes. 
+        The following analyses were done after the bot had collected data points from 4 March, 21 -- 12 July, 21."""
+
         col1_1.subheader(date)
-        st.write(currently_p1)
+        st.write(p1)
         st.subheader("Results")
         st.write(results)
+        st.subheader('About the data')
+        st.write(about_data)
         link = '[Project repository](https://github.com/Gibsonogram/streamlit)'
         st.markdown(link, unsafe_allow_html=True) 
 
@@ -125,7 +131,7 @@ with secondly:
         bt_cols = list(big_tuna.columns)
         bt_cols.insert(0, 'top 6-10')
         bt_cols.insert(0, 'top 1-5')
-        selector = st.selectbox('view history of:', options=bt_cols)
+        selector = st.selectbox('view history of (you can type):', options=bt_cols)
 
     with col2_2:
         st.markdown("<h3 style='text-align: center; color: black;'>History</h3>", unsafe_allow_html=True)
@@ -146,12 +152,10 @@ with secondly:
         
         interactive_chart = alt.Chart(chart_data).mark_line().encode(
             x = alt.X('date:T',
-                      scale=alt.Scale(
-                          domain = [big_tuna.iat[1 - len(big_tuna),-1],
-                                    big_tuna.iat[-1,-1]])),
+                      scale=alt.Scale(domain = [big_tuna.iat[30-len(big_tuna),-1], big_tuna.iat[-1,-1]])),
             y = 'mentions:Q',
             color = 'ticker:N'
-        ).interactive(bind_y = False)
+            ).interactive(bind_y=False)
 
         st.altair_chart(interactive_chart, use_container_width=True)
 

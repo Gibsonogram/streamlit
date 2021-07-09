@@ -2,16 +2,14 @@ from matplotlib import rcParams
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from pandas.core.series import Series
 
 # params
-ticker = 'GME'
+ticker = 'PLTR'
 plt.figure(figsize=(11,5))
-shift_num = 30
+shift_num = 15
 
 
 
-# get dat data
 # data is D OHLC
 big_tuna = pd.read_csv('wsb_ticker_mentions.csv')
 bt_cols = big_tuna.columns
@@ -54,27 +52,19 @@ for ind, val in zip(csv_data.index, csv_data.values):
     if ind in d:
         v.append(val)
 csv_data = pd.Series(v, index=d)
-# print(mention_series, csv_data)
-
-
-
-
-
-
 
 shifted_back = mention_series.shift(-shift_num)
 # print(mention_series, shifted_back)
 # that was a shit show...
-x = Series.corr(shifted_back, csv_data)
-print(shift_num, x)
+x = round(pd.Series.corr(shifted_back, csv_data), 3)
+print(shift_num, x, len(shifted_back.dropna()))
 
-"""
+
 plt.scatter(csv_data.values, shifted_back.values)
 plt.xlabel('price')
 plt.ylabel(f'mentions on wsb')
 plt.title(f'{ticker}')
 plt.show()
-"""
 
 """
 # this might come in handy... later
