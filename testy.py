@@ -4,17 +4,15 @@ import numpy as np
 
 big_tuna = pd.read_csv("wsb_ticker_mentions.csv")
 big_tuna = big_tuna.drop('date_hour', axis=1)
-avg_arr = []
+
+
+
+big_ticket = []
 
 for col in big_tuna:
-    col_sum = 0
-    for item in big_tuna[col]:
-        col_sum += item
-    avg = round(col_sum / len(big_tuna),2)
-    avg_arr.append([avg, col])
+    for row in big_tuna[col]:
+        if col not in big_ticket:
+            if row > 22:
+                big_ticket.append(col)
 
-most_mentioned = [[i,j] for i,j in avg_arr if i > 3.5]
-most_mentioned = pd.DataFrame(most_mentioned)
-
-
-print(most_mentioned)
+print(big_ticket)

@@ -4,9 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # params
-ticker = 'PLTR'
-plt.figure(figsize=(11,5))
-shift_num = 15
+ticker = 'GME'
+# plt.figure(figsize=(11,5))
+shift_num = 1
 
 
 
@@ -18,7 +18,7 @@ closes = []
 for i in csv_data['Close']:
     closes.append(round(float(i), 2))
 tick_num = 15
-ticks = [tick for index, tick in enumerate(csv_data['Date']) if index % tick_num == 0]
+ticks = [tick[-5:] for index, tick in enumerate(csv_data['Date']) if index % tick_num == 0]
 
 csv_data = pd.Series(closes, index=csv_data['Date'])
 for col in big_tuna.columns:
@@ -53,30 +53,38 @@ for ind, val in zip(csv_data.index, csv_data.values):
         v.append(val)
 csv_data = pd.Series(v, index=d)
 
+csv_data = csv_data.diff()
+
+
+
+
 shifted_back = mention_series.shift(-shift_num)
 # print(mention_series, shifted_back)
 # that was a shit show...
-x = round(pd.Series.corr(shifted_back, csv_data), 3)
+x = round(pd.Series.corr(shifted_back, csv_data), 2)
 print(shift_num, x, len(shifted_back.dropna()))
 
 
-plt.scatter(csv_data.values, shifted_back.values)
-plt.xlabel('price')
-plt.ylabel(f'mentions on wsb')
-plt.title(f'{ticker}')
-plt.show()
 
+
+""" 
+# plt.scatter(csv_data.values, shifted_back.values)
+fig, ax1 = plt.subplots()
+
+color = 'tab:red'
+ax1.set_xlabel('time')
+ax1.set_ylabel(f'{ticker} mentions on wsb', color=color)
+ax1.plot(mention_series.index, mention_series.values, color=color)
+ax1.tick_params(axis='y', labelcolor=color)
+
+ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+
+color = 'tab:blue'
+ax2.set_ylabel(f'{ticker} price', color=color)  # we already handled the x-label with ax1
+ax2.plot(mention_series.index, csv_data.values, color=color)
+ax2.tick_params(axis='y', labelcolor=color)
 """
-# this might come in handy... later
-for row in range(0, len(big_tuna)):
-    row_map = []
-    for index, item in enumerate(big_tuna.iloc[row,:-1]):
-        row_map.append([bt_cols[index], item])
-    
-    top_in_row = []
-    for i, j in row_map:
-        if j > 4:
-            top_in_row.append([i,j])
-    top_in_row.append(big_tuna.iat[row, -1])
-    print(top_in_row)
-"""
+
+#plt.xticks(ticks=ticks)
+#plt.title(f'{ticker}')
+#plt.show()

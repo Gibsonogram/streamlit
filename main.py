@@ -1,3 +1,4 @@
+from os import write
 from matplotlib.pyplot import title
 import streamlit as st
 import numpy as np
@@ -5,18 +6,19 @@ import pandas as pd
 from PIL import Image
 from datetime import datetime
 import altair as alt
-
+import matplotlib.pyplot as plt
+from analysis import shifted_back, csv_data
 st.set_page_config(layout="wide",
                    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
                    page_title="I am a great investor")
 
 
+
+# params
 big_tuna = pd.read_csv("wsb_ticker_mentions.csv")
-header = st.beta_container()
-firstly = st.beta_container()
-secondly = st.beta_container()
-analysis = st.beta_container()
-about = st.beta_container()
+#I'm gonna want this date column for stuff
+bt_date = big_tuna.pop('date_hour')
+big_tuna['date_hour'] = bt_date
 
 st.markdown(
     f"""
@@ -40,14 +42,13 @@ st.markdown(
             transform: translate(-50%, -50%);
         }}
     </style>
-""",
-    unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 # st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
 header_image = Image.open("images/school_athens.png")
 prof_pic = Image.open("images/prof_pic2.png")
 date = datetime.now().strftime('%m/%d/%y')
 
+header = st.beta_container()
 with header:
     st.image(header_image)
     st.markdown(f"""
@@ -58,21 +59,23 @@ with header:
         </div>
         """, unsafe_allow_html=True)
 
-#I'm gonna want this date column for stuff
-bt_date = big_tuna.pop('date_hour')
-big_tuna['date_hour'] = bt_date
 
+
+firstly = st.beta_container()
 col1_1, col1_2 = st.beta_columns((7,6))
 with firstly:
     st.header("A final update on the project")
     with col1_1:
         p1 = """This site is getting a final update. 
         It will remain static after today, however, analysis on the results are available below."""
-
-        results = """After months of using this bots advice intermittently, growing angry, then weary, I have gathered enough results to stop the experiment. 
-        I am however going to do a rigorous analysis on price history vs r/wallstreetbets mentions. 
-        I will be showing just how correlated these variables are, and whether or not this strategy is truly viable. 
-        Here is a link to the new site, where the data from this project has been moved, and analysis continues:"""
+        
+        link = '[Project repository](https://github.com/Gibsonogram/streamlit)'
+        results = f"""The question I set out to answer was this: 
+        Is there a correlation between the movement of a stock, and the times it was mentioned on r/wallstreetbets leading up to that?
+        After months of gathering data (and occasionally using this bots advice) I have enough information to stop the experiment. 
+        Below is an analysis on this central question and relevant information about the data that was gathered.
+        Additionally, I wanted to see if I could find a viable trading stategy based on these results. 
+        Here is a link to the github repository with the project: {link}"""
 
         about_data = """The data obtained for this project is from a simple web scraper. Using the python reddit api, I scraped wsb for mentions of stocks and general sentiment. 
         The bot was run roughly once a day, (N=50) toward the end of the Nasdaq trading period. The stock data was obtained with yahoo finance in the form of daily closes. 
@@ -84,9 +87,6 @@ with firstly:
         st.write(results)
         st.subheader('About the data')
         st.write(about_data)
-        link = '[Project repository](https://github.com/Gibsonogram/streamlit)'
-        st.markdown(link, unsafe_allow_html=True) 
-
     with col1_2:
         # most mentioned over the course of proj
         big_tun = big_tuna.drop('date_hour', axis=1)
@@ -123,12 +123,21 @@ with firstly:
             st.altair_chart(avg_mentions_chart, use_container_width=True)
         chart_current()
 
+
+
+secondly = st.beta_container()
 col2_1, col2_2 = st.beta_columns((1,6))
 with secondly:
     top_5 = big_tuna.iloc[:,:5]
     top_5_10 = big_tuna.iloc[:,5:10]
     with col2_1:
-        bt_cols = list(big_tuna.columns)
+        bt_cols = []
+        for col in big_tuna.iloc[:,:-1]:
+            for row in big_tuna[col]:
+                if col not in bt_cols:
+                    if row > 2:
+                        bt_cols.append(col)
+                        break
         bt_cols.insert(0, 'top 6-10')
         bt_cols.insert(0, 'top 1-5')
         selector = st.selectbox('view history of (you can type):', options=bt_cols)
@@ -152,32 +161,70 @@ with secondly:
         
         interactive_chart = alt.Chart(chart_data).mark_line().encode(
             x = alt.X('date:T',
-                      scale=alt.Scale(domain = [big_tuna.iat[30-len(big_tuna),-1], big_tuna.iat[-1,-1]])),
+                      scale=alt.Scale(domain = [big_tuna.iat[-len(big_tuna),-1], big_tuna.iat[-1,-1]])),
             y = 'mentions:Q',
             color = 'ticker:N'
-            ).interactive(bind_y=False)
+            )
+            # .interactive(bind_y=False)
 
         st.altair_chart(interactive_chart, use_container_width=True)
 
 
+
+analysis_briefer = st.beta_container()
+analysis = st.beta_container()
 col3_1, col3_2, col3_3 = st.beta_columns((1,1,1))
 with analysis:
+    with analysis_briefer:
+        st.subheader('Analysis')
+        st.write(
+            """
+            Of the 495 stocks that my bot has seen mentioned as it scrapes r/wallstreetbets/new, only a few actually ascend to meme status.
+            The vast majority of these mentions are from completely original 'DD' posts that fly under the radar and never gain traction on the subreddit.
+            The highly mentioned 'meme stocks' take up most of the subreddit these days. 
+            While the meme formats are hilarious, it makes genuine analysis on the underlying stock difficult.
+            With the wsb mentions delayed over different time periods, we can see if there is any true correlation with price data.
+            """)
     with col3_1:
-        st.subheader('high mentions')
+        fig, ax = plt.subplots()
+        ax.scatter(shifted_back.values, csv_data.values)
+        ax.set_ylabel('price')
+        ax.set_xlabel('previous day mentions on r/wsb')
+        plt.title('GME')
+        st.pyplot(fig)
+        
+        
+        high_mention_corr_v = [0.04, -0.1, -0.14, -0.1, -0.01]
+        high_mention_corr_d = ['1', '4', '5', '7', '14']
+        high_mention_corr = pd.DataFrame()
+        high_mention_corr['delay(days)'] = high_mention_corr_d 
+        high_mention_corr['Pearson Correlation Coefficient'] = high_mention_corr_v
+        st.table(high_mention_corr.assign(hack='').set_index('hack'))
     with col3_2:
-        st.write('Results')
-        st.subheader("high mentions (left)")
+        st.subheader("highly mentioned stocks (left)")
+        st.write("""
+            The first thing I tried was a simple shifted correlation plot for the grandest of the meme stocks, that is, GameStop.
+            The results of a correlation between close price and previous day's mentions shows a clear result, 
+            with a Pearson correlation coefficient (C) of -0.02.  
+            
+            The greatest magnitude of C is achieved at a seventeen day delay, with C = 0.463.
+            This is still not close to the threshold of C = |0.7| to consider the correlation meaningful. 
+            """)
+        st.write("""
+            I have gathered the top 10 most mentioned stocks over the course of this project 
+            and found the Pearson correlation coefficient (C) for delayed mentions (in days) and close price data. 
+            Below are simple averages showing the results.
+            """)
+
         st.subheader("low mentions (right)")
     with col3_3:
         st.subheader('low mention stocks')
-    
 
 
 
 
-
+about = st.beta_container()
 col4_1 = st.beta_container()
-
 with about:
     with col4_1:
         col4_1.subheader("About the project")
