@@ -11,8 +11,12 @@ big_ticket = []
 
 for col in big_tuna:
     for row in big_tuna[col]:
-        if col not in big_ticket:
-            if row > 22:
-                big_ticket.append(col)
+        if row > 10:
+            if col in big_ticket:
+                big_ticket.remove(col)
+            break
+        if 5 < row <= 10 and col not in big_ticket:
+            big_ticket.append(col)
+
 
 print(big_ticket)

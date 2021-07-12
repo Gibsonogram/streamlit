@@ -53,7 +53,7 @@ for ind, val in zip(csv_data.index, csv_data.values):
         v.append(val)
 csv_data = pd.Series(v, index=d)
 
-csv_data = csv_data.diff()
+csv_diff = csv_data.diff()
 
 
 
@@ -62,6 +62,7 @@ shifted_back = mention_series.shift(-shift_num)
 # print(mention_series, shifted_back)
 # that was a shit show...
 x = round(pd.Series.corr(shifted_back, csv_data), 2)
+
 print(shift_num, x, len(shifted_back.dropna()))
 
 
@@ -83,8 +84,8 @@ color = 'tab:blue'
 ax2.set_ylabel(f'{ticker} price', color=color)  # we already handled the x-label with ax1
 ax2.plot(mention_series.index, csv_data.values, color=color)
 ax2.tick_params(axis='y', labelcolor=color)
-"""
 
-#plt.xticks(ticks=ticks)
-#plt.title(f'{ticker}')
-#plt.show()
+plt.xticks(ticks=ticks)
+plt.title(f'{ticker}')
+plt.show()
+ """

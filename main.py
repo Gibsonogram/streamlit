@@ -45,7 +45,7 @@ st.markdown(
 """, unsafe_allow_html=True)
 # st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 header_image = Image.open("images/school_athens.png")
-prof_pic = Image.open("images/prof_pic2.png")
+# prof_pic = Image.open("images/prof_pic2.png")
 date = datetime.now().strftime('%m/%d/%y')
 
 header = st.beta_container()
@@ -68,7 +68,7 @@ with firstly:
     with col1_1:
         p1 = """This site is getting a final update. 
         It will remain static after today, however, analysis on the results are available below."""
-        
+
         link = '[Project repository](https://github.com/Gibsonogram/streamlit)'
         results = f"""The question I set out to answer was this: 
         Is there a correlation between the movement of a stock, and the times it was mentioned on r/wallstreetbets leading up to that?
@@ -172,6 +172,7 @@ with secondly:
 
 
 analysis_briefer = st.beta_container()
+analysis_closer = st.beta_container()
 analysis = st.beta_container()
 col3_1, col3_2, col3_3 = st.beta_columns((1,1,1))
 with analysis:
@@ -194,8 +195,8 @@ with analysis:
         st.pyplot(fig)
         
         
-        high_mention_corr_v = [0.04, -0.1, -0.14, -0.1, -0.01]
-        high_mention_corr_d = ['1', '4', '5', '7', '14']
+        high_mention_corr_v = [0.175, 0.142,  0.05, -0.03, 0.01]
+        high_mention_corr_d = ['1', '2', '5', '7', '14']
         high_mention_corr = pd.DataFrame()
         high_mention_corr['delay(days)'] = high_mention_corr_d 
         high_mention_corr['Pearson Correlation Coefficient'] = high_mention_corr_v
@@ -203,31 +204,75 @@ with analysis:
     with col3_2:
         st.subheader("highly mentioned stocks (left)")
         st.write("""
-            The first thing I tried was a simple shifted correlation plot for the grandest of the meme stocks, that is, GameStop.
-            The results of a correlation between close price and previous day's mentions shows a clear result, 
-            with a Pearson correlation coefficient (C) of -0.02.  
+            The first thing I did was take the daily closes of each stock and difference them. 
+            This results in how much they moved each day.
+            I then shifted the mentions data by a single day.
+            This means I was comparing the mentions of the previous day, with the amount the stock truly moved the next day. 
+            I first tested the correlation for the grandest of the meme stocks, that is, GameStop.
+            The results of a correlation between price change and previous day's mentions shows a clear result, 
+            with a Pearson correlation coefficient (C) of 0.05.
             
-            The greatest magnitude of C is achieved at a seventeen day delay, with C = 0.463.
-            This is still not close to the threshold of C = |0.7| to consider the correlation meaningful. 
+            The greatest magnitude of C is achieved at a twelve day delay, with C = 0.22, roughly two weeks later.
+            This is still not even close to the threshold of C = |0.7| to consider the correlation meaningful. 
             """)
         st.write("""
             I have gathered the top 10 most mentioned stocks over the course of this project 
-            and found the Pearson correlation coefficient (C) for delayed mentions (in days) and close price data. 
+            and found the Pearson correlation coefficient (C) for delayed mentions (in days) and close difference data. 
             Below are simple averages showing the results.
             """)
 
-        st.subheader("low mentions (right)")
+        st.subheader("mid-level mentions (right)")
+        st.write(
+            """
+            I didn't truly have hope for the highly mentioned stocks on r/wsb. 
+            When I started this project, I had a few hypotheses.
+            I assumed that the highy mentioned, memified stocks would surely fail to have a correlation. 
+            I also thought the low-mention stocks would fail to have a correlation, due to less overall interest in them.
+            I assumed that stocks with a maximum of between 5 and 10 mentions would have the highest correlation.
+            I was very wrong. As you can see on the left, these stocks have the lowest overall correlation with price data.    
+            """)
     with col3_3:
-        st.subheader('low mention stocks')
+        st.subheader('mid-level mention stocks')
+        med_mention_corr_v = [0.062, 0.023,  0.01, -0.003]
+        med_mention_corr_d = ['1', '5', '7', '14']
+        med_mention_corr = pd.DataFrame()
+        med_mention_corr['delay(days)'] = med_mention_corr_d 
+        med_mention_corr['Pearson Correlation Coefficient'] = med_mention_corr_v
+        st.table(med_mention_corr.assign(hack='').set_index('hack'))
+        
+        fig, ax = plt.subplots()
+        ax.scatter(shifted_back.values, csv_data.values)
+        ax.set_ylabel('price')
+        ax.set_xlabel('previous day mentions on r/wsb')
+        plt.title('...')
+        st.pyplot(fig)
+    
+    with analysis_closer:
+        st.subheader('Remarks on averaged correlations')
+        st.write(
+            """
+            With the above averages in correlation, It makes sense that there is nothing significant. 
+            There are some outliers, which I will look at more closely below. 
+            I also want to look next at specific changes in mentions of a stock.
+            It makes sense that across individual price changes, we have a low correlation. 
+            If it were statistically significant, then everyone would see this as a viable strategy.
+            It remains to be seen if there is some correlation between big shifts in mention number 
+            (which I'll refer to in the next section as "mention velocity") and change in close prices. 
+            Looking at the history charts above, it is clear that some stocks become sudden beacons on r/wsb.
+            I want to look more closely at these sudden changes.
+            """)
 
 
+
+analysis_continued = st.beta_container()
+col4_1 = st.beta_columns((1,1))
 
 
 about = st.beta_container()
-col4_1 = st.beta_container()
+col5_1 = st.beta_container()
 with about:
-    with col4_1:
-        col4_1.subheader("About the project")
+    with col5_1:
+        col5_1.subheader("About the project")
         st.write("""I started this project shortly after joining r/wallstreetbets, a community on reddit devoted to some of the worst trading tactics imaginable.
         With an applied math degree and too much time on my hands, I decided to learn a bit of web developent. I quickly got in way over my head. 
         While the idea for this site began as a blog-style trading experiment using a web-scraper, I couldn't resist making it about data science.
