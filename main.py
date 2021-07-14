@@ -6,19 +6,18 @@ import pandas as pd
 from PIL import Image
 from datetime import datetime
 import altair as alt
+import base64
 import matplotlib.pyplot as plt
+from pathlib import Path
 st.set_page_config(layout="wide",
                    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
                    page_title="I am a great investor")
-
-
 
 
 # params
 big_tuna = pd.read_csv("wsb_ticker_mentions.csv")
 gme = pd.read_csv("correlation_dataframes/gme_data.csv")
 nvda = pd.read_csv("correlation_dataframes/nvda_data.csv")
-
 
 #I'm gonna want this date column for stuff
 bt_date = big_tuna.pop('date_hour')
@@ -45,11 +44,18 @@ st.markdown(
             left: 50%;
             transform: translate(-50%, -50%);
         }}
+        #prof {{
+            height: 200px;
+            width: 200px;
+            border-radius: 100px;
+            padding: 30px; 
+        }}
     </style>
 """, unsafe_allow_html=True)
+
+
 # st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 header_image = Image.open("images/school_athens.png")
-# prof_pic = Image.open("images/prof_pic2.png")
 date = datetime.now().strftime('%m/%d/%y')
 
 header = st.beta_container()
@@ -64,7 +70,6 @@ with header:
         """, unsafe_allow_html=True)
 
 
-
 firstly = st.beta_container()
 col1_1, col1_2 = st.beta_columns((7,6))
 with firstly:
@@ -73,13 +78,13 @@ with firstly:
         p1 = """This site is getting a final update. 
         It will remain static after today, however, analysis on the results are available below."""
 
-        link = '[Project repository](https://github.com/Gibsonogram/streamlit)'
+        link = '[project repository](https://github.com/Gibsonogram/streamlit)'
         results = f"""The question I set out to answer was this: 
         Is there a correlation between the movement of a stock, and the times it was mentioned on r/wallstreetbets leading up to that?
         After months of gathering data (and occasionally using this bots advice) I have enough information to stop the experiment. 
         Below is an analysis on this central question and relevant information about the data that was gathered.
         Additionally, I wanted to see if I could find a viable trading stategy based on these results. 
-        Here is a link to the github repository with the project: {link}"""
+        Here is a link to the {link}."""
 
         about_data = """The data obtained for this project is from a simple web scraper. Using the python reddit api, I scraped wsb for mentions of stocks and general sentiment. 
         The bot was run roughly once a day, (N=50) toward the end of the Nasdaq trading period. The stock data was obtained with yahoo finance in the form of daily closes. 
@@ -128,7 +133,6 @@ with firstly:
         chart_current()
 
 
-
 secondly = st.beta_container()
 col2_1, col2_2 = st.beta_columns((1,6))
 with secondly:
@@ -172,7 +176,6 @@ with secondly:
             # .interactive(bind_y=False)
 
         st.altair_chart(interactive_chart, use_container_width=True)
-
 
 
 analysis_briefer = st.beta_container()
@@ -268,28 +271,47 @@ with analysis_closer:
         I want to look more closely at these sudden changes.
         """)
 
-
-
 analysis_continued = st.beta_container()
 col4_1 = st.beta_columns((1,1)) 
 
 
 about = st.beta_container()
-col5_1 = st.beta_container()
+col5_1, col5_2 = st.beta_columns((5,1))
 with about:
     with col5_1:
         col5_1.subheader("About the project")
-        st.write("""I started this project shortly after joining r/wallstreetbets, a community on reddit devoted to some of the worst trading tactics imaginable.
-        With an applied math degree and too much time on my hands, I decided to learn a bit of web developent. I quickly got in way over my head. 
-        While the idea for this site began as a blog-style trading experiment using a web-scraper, I couldn't resist making it about data science.
-        I began stockpiling data after the gamestop shorting event in January-February 2021. I watched as my investment account soared to heights it had never seen.
-        Then I watched as it slowly crumbled and fell back to earth. Then I watched as it sank below the earth and turned up somewhere in hell. 
-        There is nothing left to do now but lose the rest of it to insane plays.
-        """)
-        st.write("""So I made a bot that tells me the most mentioned stocks on r/wallstreetbets and I will only take advice from there. 
-        Feel free to check back and watch as my account plummets or soars. 
-        This is not financial advice, I just wanted to see what would happen if I listened to the worst investors on the internet.
-        """)
-        st.write("""NOTE: This site is no longer being updated, the project continues here:
-        """)
-        st.markdown(link, unsafe_allow_html=True)
+        st.write(
+            """
+            I started this project shortly after joining r/wallstreetbets, a community on reddit devoted to some of the worst trading tactics imaginable.
+            With an applied math degree and too much time on my hands, I decided to learn a bit of web developent. I quickly got in way over my head. 
+            While the idea for this site began as a blog-style trading experiment using a web-scraper, I couldn't resist making it about data science.
+            I began stockpiling data after the gamestop shorting event in January-February 2021. I watched as my investment account soared to heights it had never seen.
+            Then I watched as it slowly crumbled and fell back to earth. 
+            Then I watched as it sank below the earth and turned up somewhere in hell. 
+            There is nothing left to do but experiment with what is left.
+            This is not financial advice, I just wanted to see what would happen if I listened to the worst investors on the internet.
+            """)
+    with col5_2:
+        
+        st.markdown(
+            f"""
+            <div class = "centered">
+                <h3>
+                    Me
+                </h1>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # thank you streamlitopedia for this fxn
+        def img_to_bytes(img_path):
+            img_bytes = Path(img_path).read_bytes()
+            encoded = base64.b64encode(img_bytes).decode()
+            return encoded     
+        pic = img_to_bytes("images/prof_pic2.jpeg")
+        header_html = """
+                    <img 
+                    src='data:image/jpeg;base64,{}' 
+                    id='prof' 
+                    class='img-fluid'>""".format(img_to_bytes("images/prof_pic2.jpeg"))
+
+        st.markdown(header_html, unsafe_allow_html=True)
