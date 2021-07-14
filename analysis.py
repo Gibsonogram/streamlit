@@ -4,15 +4,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # params
-ticker = 'GME'
+ticker = 'NVDA'
 # plt.figure(figsize=(11,5))
-shift_num = 1
+shift_num = 4
 
 
 
 # data is D OHLC
 big_tuna = pd.read_csv('wsb_ticker_mentions.csv')
 bt_cols = big_tuna.columns
+
 csv_data = pd.read_csv(f'historical_data/{ticker}.csv')
 closes = []
 for i in csv_data['Close']:
@@ -52,6 +53,22 @@ for ind, val in zip(csv_data.index, csv_data.values):
     if ind in d:
         v.append(val)
 csv_data = pd.Series(v, index=d)
+
+
+to_file = pd.DataFrame()
+to_file['close'] = csv_data.values
+to_file[f'{shift_num} day shifted mentions'] = mention_series.values
+to_file['dates'] = csv_data.index
+
+# getting variants
+if ticker == 'NVDA':
+    l_ticker = str(ticker).lower()
+    to_file.to_csv(f"correlation_dataframes/{l_ticker}_data.csv", index=False, na_rep=0)
+
+
+
+
+
 
 csv_diff = csv_data.diff()
 

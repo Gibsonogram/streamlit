@@ -7,15 +7,19 @@ from PIL import Image
 from datetime import datetime
 import altair as alt
 import matplotlib.pyplot as plt
-from analysis import shifted_back, csv_data
 st.set_page_config(layout="wide",
                    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
                    page_title="I am a great investor")
 
 
 
+
 # params
 big_tuna = pd.read_csv("wsb_ticker_mentions.csv")
+gme = pd.read_csv("correlation_dataframes/gme_data.csv")
+nvda = pd.read_csv("correlation_dataframes/nvda_data.csv")
+
+
 #I'm gonna want this date column for stuff
 bt_date = big_tuna.pop('date_hour')
 big_tuna['date_hour'] = bt_date
@@ -172,10 +176,16 @@ with secondly:
 
 
 analysis_briefer = st.beta_container()
-analysis_closer = st.beta_container()
 analysis = st.beta_container()
 col3_1, col3_2, col3_3 = st.beta_columns((1,1,1))
 with analysis:
+    # load in csv shite
+    gme_closes = gme['close']
+    gme_shifted = gme['1 day shifted mentions']
+
+    nvda_closes = nvda['close']
+    nvda_shifted = nvda['4 day shifted mentions']
+
     with analysis_briefer:
         st.subheader('Analysis')
         st.write(
@@ -187,49 +197,44 @@ with analysis:
             With the wsb mentions delayed over different time periods, we can see if there is any true correlation with price data.
             """)
     with col3_1:
-        fig, ax = plt.subplots()
-        ax.scatter(shifted_back.values, csv_data.values)
-        ax.set_ylabel('price')
-        ax.set_xlabel('previous day mentions on r/wsb')
-        plt.title('GME')
-        st.pyplot(fig)
-        
-        
+        st.subheader("highly mentioned stocks")
         high_mention_corr_v = [0.175, 0.142,  0.05, -0.03, 0.01]
         high_mention_corr_d = ['1', '2', '5', '7', '14']
         high_mention_corr = pd.DataFrame()
         high_mention_corr['delay(days)'] = high_mention_corr_d 
         high_mention_corr['Pearson Correlation Coefficient'] = high_mention_corr_v
         st.table(high_mention_corr.assign(hack='').set_index('hack'))
+
+        fig, ax = plt.subplots()
+        ax.scatter(gme_shifted, gme_closes)
+        ax.set_ylabel('price')
+        ax.set_xlabel('previous day mentions on r/wsb')
+        plt.title('GME')
+        st.pyplot(fig)
+        
     with col3_2:
-        st.subheader("highly mentioned stocks (left)")
         st.write("""
             The first thing I did was take the daily closes of each stock and difference them. 
             This results in how much they moved each day.
             I then shifted the mentions data by a single day.
             This means I was comparing the mentions of the previous day, with the amount the stock truly moved the next day. 
             I first tested the correlation for the grandest of the meme stocks, that is, GameStop.
-            The results of a correlation between price change and previous day's mentions shows a clear result, 
+            The results of a correlation between price change and previous day's mentions shows a clear lack of any correlation, 
             with a Pearson correlation coefficient (C) of 0.05.
-            
-            The greatest magnitude of C is achieved at a twelve day delay, with C = 0.22, roughly two weeks later.
-            This is still not even close to the threshold of C = |0.7| to consider the correlation meaningful. 
-            """)
-        st.write("""
-            I have gathered the top 10 most mentioned stocks over the course of this project 
-            and found the Pearson correlation coefficient (C) for delayed mentions (in days) and close difference data. 
-            Below are simple averages showing the results.
             """)
 
-        st.subheader("mid-level mentions (right)")
-        st.write(
-            """
-            I didn't truly have hope for the highly mentioned stocks on r/wsb. 
-            When I started this project, I had a few hypotheses.
-            I assumed that the highy mentioned, memified stocks would surely fail to have a correlation. 
-            I also thought the low-mention stocks would fail to have a correlation, due to less overall interest in them.
-            I assumed that stocks with a maximum of between 5 and 10 mentions would have the highest correlation.
-            I was very wrong. As you can see on the left, these stocks have the lowest overall correlation with price data.    
+        st.write("""
+            I didn't truly have hope for the highly mentioned stocks on r/wsb.
+            I assumed that these memified stocks would fail to have a correlation. 
+            I also thought the low-mention stocks would fail to have a correlation, due to less overall interest and the sheer odds of singular mentions correctly identifying trends.
+            I did believe that stocks with a maximum of between 5 and 10 mentions would have the highest correlation.
+            This is where it gets interesting, because as an average, I was very wrong. 
+            As you can see on the left, these stocks have the lowest overall correlation with price data. 
+            However, the deviance in Correlation was higher among them. 
+            With a four day delay, (this is roughly one trading week) there were stonger correlations.
+            For example, the NVDA plot to the right, shows C = 0.3, while ITUB had C = 0.54. 
+            Others had a strong negative correlation, such as WOOF with C = -0.23.
+
             """)
     with col3_3:
         st.subheader('mid-level mention stocks')
@@ -241,31 +246,32 @@ with analysis:
         st.table(med_mention_corr.assign(hack='').set_index('hack'))
         
         fig, ax = plt.subplots()
-        ax.scatter(shifted_back.values, csv_data.values)
+        ax.scatter(nvda_shifted, nvda_closes)
         ax.set_ylabel('price')
-        ax.set_xlabel('previous day mentions on r/wsb')
-        plt.title('...')
+        ax.set_xlabel('mentions 4 days prior on r/wsb')
+        plt.title('NVDA')
         st.pyplot(fig)
-    
-    with analysis_closer:
-        st.subheader('Remarks on averaged correlations')
-        st.write(
-            """
-            With the above averages in correlation, It makes sense that there is nothing significant. 
-            There are some outliers, which I will look at more closely below. 
-            I also want to look next at specific changes in mentions of a stock.
-            It makes sense that across individual price changes, we have a low correlation. 
-            If it were statistically significant, then everyone would see this as a viable strategy.
-            It remains to be seen if there is some correlation between big shifts in mention number 
-            (which I'll refer to in the next section as "mention velocity") and change in close prices. 
-            Looking at the history charts above, it is clear that some stocks become sudden beacons on r/wsb.
-            I want to look more closely at these sudden changes.
-            """)
+
+analysis_closer = st.beta_container()
+with analysis_closer:
+    st.subheader('Remarks on averaged correlations')
+    st.write(
+        """
+        With the above averages in correlation, It makes sense that there is nothing significant. 
+        There are some outliers, which I will look at more closely below. 
+        I also want to look next at specific changes in mentions of a stock.
+        It makes sense that across individual price changes, we have a low correlation. 
+        If it were statistically significant, then everyone would see this as a viable strategy.
+        It remains to be seen if there is some correlation between big shifts in mention number 
+        (which I'll refer to in the next section as "mention velocity") and change in close prices. 
+        Looking at the history charts above, it is clear that some stocks become sudden beacons on r/wsb.
+        I want to look more closely at these sudden changes.
+        """)
 
 
 
 analysis_continued = st.beta_container()
-col4_1 = st.beta_columns((1,1))
+col4_1 = st.beta_columns((1,1)) 
 
 
 about = st.beta_container()
