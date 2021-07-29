@@ -1,13 +1,14 @@
 import praw as pr
 import pandas as pd
+from config import *
 from datetime import datetime
 import time
 
-reddit = pr.Reddit(client_id = '5lMt_1-JSba0hw',
-                   client_secret = 'tkWQfmM_67BLdoxrOpAVQb7V13GsLQ',
-                   username = 'Iwillnotbeaplankton',
-                   password = 'Snowdrop1',
-                   user_agent = 'first_app')
+reddit = pr.Reddit(client_id = CLIENT_ID,
+                   client_secret = CLIENT_SECRET,
+                   username = USERNAME,
+                   password = PASSWORD,
+                   user_agent = USER_AGENT)
 
 wsb = reddit.subreddit('wallstreetbets')
 date_w_hour = datetime.now().strftime('%m/%d %H:00')

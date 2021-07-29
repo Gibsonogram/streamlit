@@ -9,14 +9,13 @@ big_tuna = big_tuna.drop('date_hour', axis=1)
 
 big_ticket = []
 
-for col in big_tuna:
-    for row in big_tuna[col]:
-        if row > 10:
-            if col in big_ticket:
-                big_ticket.remove(col)
-            break
-        if 5 < row <= 10 and col not in big_ticket:
-            big_ticket.append(col)
 
+#print(big_tuna.iat[-17,3])
 
-print(big_ticket)
+ls = [1,2,3,4,5]
+print(ls[1:])
+
+def func():
+    """fgssf"""
+    return
+print(func.__doc__)

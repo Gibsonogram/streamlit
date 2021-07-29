@@ -4,9 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # params
-ticker = 'NVDA'
+ticker = 'GME'
 # plt.figure(figsize=(11,5))
-shift_num = 4
+shift_num = 17
 
 
 
@@ -80,13 +80,26 @@ shifted_back = mention_series.shift(-shift_num)
 # that was a shit show...
 x = round(pd.Series.corr(shifted_back, csv_data), 2)
 
+doop = len(shifted_back) - len(shifted_back.dropna())
+dom = np.array(shifted_back.dropna().values)
+ran = np.array(csv_data.tail(len(csv_data)-doop).values)
+print(dom, ran)
+m, b = np.polyfit(dom, ran, 1)
+
 print(shift_num, x, len(shifted_back.dropna()))
 
+ax, fig = plt.subplots()
+
+my_dict = {'a' : 1, 'b' : 2}
+
+plt.scatter(dom, ran)
+plt.plot(dom, dom*m + b)
+plt.show()
 
 
 
-""" 
-# plt.scatter(csv_data.values, shifted_back.values)
+"""
+
 fig, ax1 = plt.subplots()
 
 color = 'tab:red'
@@ -105,4 +118,4 @@ ax2.tick_params(axis='y', labelcolor=color)
 plt.xticks(ticks=ticks)
 plt.title(f'{ticker}')
 plt.show()
- """
+"""
