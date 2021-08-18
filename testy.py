@@ -1,21 +1,21 @@
 import pandas as pd
 from datetime import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 
-big_tuna = pd.read_csv("wsb_ticker_mentions.csv")
-big_tuna = big_tuna.drop('date_hour', axis=1)
+"""
+spy = pd.read_csv('historical_data/SPY.csv', usecols=[0,4])
+spy = spy.tail(150)
 
+fig, ax = plt.subplots()
 
+ax.set_xlim((100, len(spy)+200))
 
-big_ticket = []
+xticks = [date for index, date in enumerate(spy['Date']) if index % 50 == 0]
 
+ax.set_xticklabels(xticks)
 
-#print(big_tuna.iat[-17,3])
-
-ls = [1,2,3,4,5]
-print(ls[1:])
-
-def func():
-    """fgssf"""
-    return
-print(func.__doc__)
+sns.regplot(x = spy.index, y = 'Close', data = spy, ci=None, truncate=False)
+plt.show() 
+"""
