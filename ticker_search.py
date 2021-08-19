@@ -21,19 +21,19 @@ tickers = ticker_list['tickers']
 
 start = time.perf_counter()
 
-def ticker_searcher(sub, post_lim=50):
+def ticker_search(sub, post_lim=50):
     """Searches through a given subreddits n newest post titles for stock tickers.
     
     Params
     -----------
     Subreddit (required): which subreddit to search through. 
     Searches 'new' posts.
-    post lim (optional): Defaults to 50. How many posts to search through. Polynomial time. Searching more than 500 posts takes some time.
+    post lim (optional): Defaults to 50. How many posts to search through. Linear time.
     Could be optimized.
 
     Returns
     --------
-    Array of (ticker symbol, count) tuples."""
+    Array of (ticker, count) tuples."""
 
     mentions = []
     for submi in reddit.subreddit(sub).new(limit=post_lim):
@@ -69,6 +69,6 @@ def ticker_searcher(sub, post_lim=50):
 
 
 
-ticker_searcher(wsb, 50)
+ticker_search(wsb, 100)
 finish = time.perf_counter()
 print(finish)
