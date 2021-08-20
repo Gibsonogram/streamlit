@@ -1,8 +1,10 @@
 from collections import UserDict
+from numpy.core.numeric import full
 import praw as pr
 import pandas as pd
 from config import *
 import time
+import re
 
 # reddit api
 reddit = pr.Reddit(client_id = CLIENT_ID,
@@ -17,59 +19,77 @@ stocks = 'stocks'
 ssb = 'smallstreetbets'
 
 # params
-ticker_list = pd.read_csv("nasdaq.csv", usecols=['ticker', 'name'])
-tickers, stock_name = ticker_list['ticker'], ticker_list['name']
-
+ticker_list = pd.read_csv("ticker_list.csv", usecols=['ticker', 'name'])
+tickers = ticker_list['ticker']
+stock_names = ticker_list['name'].str.lower()
 
 # start = time.perf_counter()
 
-def ticker_search(sub, post_lim=50):
-    """
-    Searches through a given subreddits n newest post titles for stock tickers.
-    
-    Params
-    -----------
-    Subreddit (required): which subreddit to search through. 
-    Searches 'new' posts.
-    post lim (optional): Defaults to 50. How many posts to search through. Linear time.
-    Could be optimized.
 
-    Returns
-    --------
-    Array of (ticker, count) tuples."""
-
+def ticker_search(post_title: str):
     mentions = []
-    for submi in reddit.subreddit(sub).new(limit=post_lim):
-        title = submi.title
-        
-        for ticker in tickers:
-            if ticker in title:
-                ticker_b = title.index(ticker[0])
-                ticker_e = title.index(ticker[-1])
-                
-                # handles the edge cases of ticker at the end of post tile.
-                if title[ticker_e] == title[-1]:
-                    if title[ticker_b] == 0:
-                        #this would be the ridiculous case of the post title simply being a stock title. That's dumb and I don't want it in my data.
-                        continue
-                    elif title[ticker_b - 1].isspace() or title[ticker_b - 1] == '$':
-                        mentions.append(ticker)
-                
-                # every other case
-                elif title[ticker_e + 1].isspace():
-                    if ticker_b == 0:
-                        mentions.append(ticker)
-                    elif title[ticker_b - 1].isspace() or title[ticker_b - 1] == '$':
-                        mentions.append(ticker)
-    
-    for ticker in mentions:
-        counts = [mentions.count(i) for i in set(mentions)]
-        ticker_counts = list(zip(set(mentions), counts))
-    
-    return ticker_counts
+    for ticker, stock_name in list(zip(tickers, stock_names)):
+        lowered = post_title.lower()
 
-ticker_search(wsb, 50)
+        # Checks if the ticker is in the post_title
+        if ticker in post_title:
+            ticker_b = post_title.index(ticker[0])
+            ticker_e = post_title.index(ticker[-1])
+            
+            # handles the edge cases of ticker/name at the end of post tile.
+            if post_title[ticker_e] == post_title[-1]:
+                if post_title[ticker_b] == 0:
+                    #this would be the ridiculous case of the post post_title simply being a stock post_title. That's dumb and I don't want it in my data.
+                    break
+                elif post_title[ticker_b - 1].isspace() or post_title[ticker_b - 1] == '$':
+                    mentions.append([ticker, stock_name])
+            
+            # every other case where ticker or stock name can appear.
+            elif post_title[ticker_e + 1].isspace():
+                if ticker_b == 0:
+                    mentions.append([ticker, stock_name])
+                elif post_title[ticker_b - 1].isspace() or post_title[ticker_b - 1] == '$':
+                    mentions.append([ticker, stock_name])
+        
+        # else if the stock name is in the post_title. It only needs to see one or the the other.
+        elif stock_name in lowered:
+            name_b = lowered.index(stock_name[0])
+            name_e = lowered.index(stock_name[-1])
+
+            if lowered[name_e] == post_title[-1]:
+                #Again, this would be the useless case of the post_title being the stock name.
+                if lowered[name_b] == 0:
+                    break
+                elif lowered[name_b - 1].isspace():
+                    mentions.append([ticker, stock_name])
+            
+            elif lowered[name_e + 1].isspace():
+                if name_b == 0:
+                    mentions.append([ticker, stock_name])
+                elif lowered[name_b - 1].isspace():
+                    mentions.append([ticker, stock_name])
+
+    return print(mentions)
+
+
+ticker_search(str(reddit.subreddit(wsb).new(limit=1)))
+"""
+def subreddit_search(sub, post_lim):
+    full_mentions = []
+    for submi in reddit.subreddit(sub).new(limit = post_lim):
+        title = submi.title
+        mentions = ticker_search(title)
+        full_mentions.append(mentions)
+    return print(full_mentions[0])
+
+subreddit_search(wsb, 50)
+
 
 # finish = time.perf_counter()
 # print(finish)
 
+    for ticker in mentions:
+        counts = [mentions.count(i) for i in set(mentions)]
+        ticker_counts = list(zip(set(mentions), counts))
+    
+"""
