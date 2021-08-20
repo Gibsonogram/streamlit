@@ -1,3 +1,4 @@
+from collections import UserDict
 import praw as pr
 import pandas as pd
 from config import *
@@ -16,13 +17,15 @@ stocks = 'stocks'
 ssb = 'smallstreetbets'
 
 # params
-ticker_list = pd.read_csv("ticker_list.csv", names=['tickers']) # get this from an api that is updated
-tickers = ticker_list['tickers']
+ticker_list = pd.read_csv("nasdaq.csv", usecols=['ticker', 'name'])
+tickers, stock_name = ticker_list['ticker'], ticker_list['name']
 
-start = time.perf_counter()
+
+# start = time.perf_counter()
 
 def ticker_search(sub, post_lim=50):
-    """Searches through a given subreddits n newest post titles for stock tickers.
+    """
+    Searches through a given subreddits n newest post titles for stock tickers.
     
     Params
     -----------
@@ -37,8 +40,6 @@ def ticker_search(sub, post_lim=50):
 
     mentions = []
     for submi in reddit.subreddit(sub).new(limit=post_lim):
-        # this big boy does the main search
-        # submi.title is a str
         title = submi.title
         
         for ticker in tickers:
@@ -67,8 +68,8 @@ def ticker_search(sub, post_lim=50):
     
     return ticker_counts
 
+ticker_search(wsb, 50)
 
+# finish = time.perf_counter()
+# print(finish)
 
-ticker_search(wsb, 100)
-finish = time.perf_counter()
-print(finish)
