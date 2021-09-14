@@ -187,7 +187,7 @@ with analysis:
     gme_shifted = gme['1 day shifted mentions']
 
     nvda_closes = nvda['close']
-    nvda_shifted = nvda['4 day shifted mentions']
+    #nvda_shifted = nvda['4 day shifted mentions']
 
     with analysis_briefer:
         st.subheader('Analysis')
@@ -273,6 +273,15 @@ with analysis_closer:
 
 analysis_continued = st.beta_container()
 col4_1 = st.beta_columns((1,1)) 
+
+
+
+
+
+
+
+
+
 
 
 about = st.beta_container()
