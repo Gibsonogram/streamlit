@@ -20,6 +20,7 @@ ssb = 'smallstreetbets'
 
 # params
 ticker_list = pd.read_csv("ticker_list.csv", usecols=['ticker', 'name'])
+ticker_list = ticker_list[ticker_list['ticker'].str.len() > 1]
 tickers = ticker_list['ticker']
 stock_names = ticker_list['name'].str.lower()
 
@@ -52,7 +53,7 @@ def ticker_search(post_title: str):
                     mentions.append([ticker, stock_name])
         
         # else if the stock name is in the post_title. It only needs to see one or the the other.
-        elif stock_name in lowered:
+        elif stock_name in lowered and stock_name != 'the':
             name_b = lowered.index(stock_name[0])
             name_e = lowered.index(stock_name[-1])
 
@@ -63,16 +64,20 @@ def ticker_search(post_title: str):
                 elif lowered[name_b - 1].isspace():
                     mentions.append([ticker, stock_name])
             
-            elif lowered[name_e + 1].isspace():
-                if name_b == 0:
-                    mentions.append([ticker, stock_name])
-                elif lowered[name_b - 1].isspace():
+            elif lowered[name_e].isspace():
+                if name_b == 0 or lowered[name_b - 1].isspace():
                     mentions.append([ticker, stock_name])
 
-    return print(mentions)
+    return mentions
 
 
-ticker_search(str(reddit.subreddit(wsb).new(limit=1)))
+# x = ticker_search('the favorite GME')
+# print(x)
+
+
+
+
+
 """
 def subreddit_search(sub, post_lim):
     full_mentions = []
