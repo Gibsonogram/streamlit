@@ -8,6 +8,7 @@ import base64
 import matplotlib.pyplot as plt
 from pathlib import Path
 from correlation_analysis import corr_analysis
+import seaborn as sns
 
 st.set_page_config(layout="wide",
                    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
@@ -183,11 +184,6 @@ analysis = st.beta_container()
 col3_1, col3_2, col3_3 = st.beta_columns((1,1,1))
 with analysis:
     # load in csv shite
-    gme_closes = gme['Close']
-    gme_shifted = gme['1 day shifted mentions']
-
-    nvda_closes = nvda['Close']
-    #nvda_shifted = nvda['4 day shifted mentions']
 
     with analysis_briefer:
         st.subheader('Analysis')
@@ -209,9 +205,9 @@ with analysis:
         st.table(high_mention_corr.assign(hack='').set_index('hack'))
 
         fig, ax = plt.subplots()
-        ax.scatter(gme_shifted, gme_closes)
+        sns.scatterplot('GME Mentions', 'Shifted 12', data=gme, x_jitter=0.2, y_jitter=0.3)
         ax.set_ylabel('price')
-        ax.set_xlabel('previous day mentions on r/wsb')
+        ax.set_xlabel('Mentions 12 days prior on r/wsb')
         plt.title('GME')
         st.pyplot(fig)
         
@@ -249,9 +245,9 @@ with analysis:
         st.table(med_mention_corr.assign(hack='').set_index('hack'))
         
         fig, ax = plt.subplots()
-        ax.scatter(nvda, nvda_closes)
+        sns.scatterplot('NVDA Mentions', 'Shifted 3', data=nvda, x_jitter=0.2, y_jitter=0.3)
         ax.set_ylabel('price')
-        ax.set_xlabel('mentions 4 days prior on r/wsb')
+        ax.set_xlabel('mentions 3 days prior on r/wsb')
         plt.title('NVDA')
         st.pyplot(fig)
 

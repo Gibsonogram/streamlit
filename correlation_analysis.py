@@ -10,9 +10,11 @@ from bt_wrangler import big_tuna_wrangler
 
 # maybe build a correlation finder...
 
-def corr_analysis(ticker, shift_num:int):
+def corr_analysis(ticker, shift_num):
     """
     Gets Pearson correlation coef. between stock mentions and designated stock price change.
+
+    Returns: DataFrame with all columns of interest
     
     Params
     -----------
@@ -20,23 +22,39 @@ def corr_analysis(ticker, shift_num:int):
     shift_num: how many days/sessions you want the data shifted back to. 
 
     shift_num: Amount of periods the series is shifted backward. 
-    Ex: Entering 2 would give correlation between stock mentions and price change as of two periods later. Confused yet?
+    Ex: Entering 2 would give correlation between stock mentions and change in close-price as of two periods later. 
+    Confused yet?
     """
 
     df = big_tuna_wrangler(ticker)
     closes = pd.Series(data=df['Close'].values, index=df['Date'])
     difference = closes.diff()
+    df['Differenced'] = difference.values
     # We have the amount stock changed from previous period...
     # Now, we shift it forward designated amount and see if there is correlation
     shifted = difference.shift(shift_num)
     df['Shifted'] = shifted.values
-    df['Shifted'] = df['Shifted'].fillna(0)
+    df[f'Shifted {shift_num}'] = df['Shifted']
+    df = df.drop('Shifted', axis = 1)
+    df = df.fillna(0)
 
     x = np.corrcoef(df.iloc[shift_num+1:, 3].values, df.iloc[shift_num+1:, 2])
-    return round(x[0][1], 4)
+    return df.iloc[shift_num+1:, :].reset_index(drop=True)
+
+num = 12
+stock = 'GME'
+
+res = corr_analysis(stock, num)
+x = np.corrcoef(res[f'{stock} Mentions'], res[f'Shifted {num}'])
+print(round(x[0][1], 4))
+# res.to_csv(f'correlation_dataframes/gme_data.csv', index=False)
 
 
-corr_analysis('NVDA', 1)
+
+
+
+
+
 
 
 # plotting
