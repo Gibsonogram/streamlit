@@ -1,5 +1,3 @@
-from os import write
-from matplotlib.pyplot import title
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -9,6 +7,8 @@ import altair as alt
 import base64
 import matplotlib.pyplot as plt
 from pathlib import Path
+from correlation_analysis import corr_analysis
+
 st.set_page_config(layout="wide",
                    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
                    page_title="I am a great investor")
@@ -183,10 +183,10 @@ analysis = st.beta_container()
 col3_1, col3_2, col3_3 = st.beta_columns((1,1,1))
 with analysis:
     # load in csv shite
-    gme_closes = gme['close']
+    gme_closes = gme['Close']
     gme_shifted = gme['1 day shifted mentions']
 
-    nvda_closes = nvda['close']
+    nvda_closes = nvda['Close']
     #nvda_shifted = nvda['4 day shifted mentions']
 
     with analysis_briefer:
@@ -249,7 +249,7 @@ with analysis:
         st.table(med_mention_corr.assign(hack='').set_index('hack'))
         
         fig, ax = plt.subplots()
-        ax.scatter(nvda_shifted, nvda_closes)
+        ax.scatter(nvda, nvda_closes)
         ax.set_ylabel('price')
         ax.set_xlabel('mentions 4 days prior on r/wsb')
         plt.title('NVDA')
@@ -273,13 +273,6 @@ with analysis_closer:
 
 analysis_continued = st.beta_container()
 col4_1 = st.beta_columns((1,1)) 
-
-
-
-
-
-
-
 
 
 
