@@ -28,6 +28,11 @@ stock_names = ticker_list['name'].str.lower()
 
 
 def ticker_search(post_title: str):
+    """
+    Searches through given string for stock names/ticker mentions
+    
+    Returns: array of [ticker, name] elements for each ticker or name it finds.
+    """
     mentions = []
     for ticker, stock_name in list(zip(tickers, stock_names)):
         lowered = post_title.lower()
@@ -73,28 +78,3 @@ def ticker_search(post_title: str):
 
 # x = ticker_search('the favorite GME')
 # print(x)
-
-
-
-
-
-"""
-def subreddit_search(sub, post_lim):
-    full_mentions = []
-    for submi in reddit.subreddit(sub).new(limit = post_lim):
-        title = submi.title
-        mentions = ticker_search(title)
-        full_mentions.append(mentions)
-    return print(full_mentions[0])
-
-subreddit_search(wsb, 50)
-
-
-# finish = time.perf_counter()
-# print(finish)
-
-    for ticker in mentions:
-        counts = [mentions.count(i) for i in set(mentions)]
-        ticker_counts = list(zip(set(mentions), counts))
-    
-"""

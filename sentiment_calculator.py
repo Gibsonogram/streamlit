@@ -1,9 +1,4 @@
-from numpy.core.defchararray import lower
 import pandas as pd
-from datetime import datetime
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
 import praw as pr
 from ticker_search import ticker_search
 import fuzzywuzzy
@@ -17,9 +12,18 @@ reddit = pr.Reddit(client_id = CLIENT_ID,
 
 wsb = 'wallstreetbets'
 
+def sentiment_score(subreddit:str, post_lim):
+    """
+    Calculates a custom metric for stock sentiment in that subreddit at that time.
+    
+    Returns: DataFrame of ticker, name, and sentiment.
 
-def sentiment_score(sub, post_lim):
-    titles = [i.title for i in reddit.subreddit(sub).new(limit=post_lim)]
+    Params
+    -------------
+    sub: this is the subreddit whose post titles you wish to search through.
+    post_lim: How many post titles you want to sift through. Linear time.
+    """
+    titles = [i.title for i in reddit.subreddit(subreddit).new(limit=post_lim)]
     # the following dict is based on the most common words in 500 wsb posts.
     sentiment_dict = {
         'positive' : ['bought', 'undervalued', 'breakout', 'long term', 'easy', 'free', 'sail', 'good', 'yolo', 'liftoff', 'green', 'moon', 'calls', 'all in', 'value', 'best', 'great', 'rocket'],
@@ -60,13 +64,8 @@ def sentiment_score(sub, post_lim):
     df['Ticker'] = stocks
     df['Sentiment'] = sentiments
     df = df.sort_values(by='Sentiment', ascending=False).set_index('Stock')
-    
     return df
 
 
 x = sentiment_score(wsb, 250)
-print(x)
-
-
-
-        
+print(x)     
