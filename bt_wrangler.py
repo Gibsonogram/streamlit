@@ -58,8 +58,3 @@ def big_tuna_wrangler(ticker):
 
 # demon.to_csv(f'correlation_dataframes/{ticker.lower()}_data.csv', index=False)
 
-
-
-
-
-

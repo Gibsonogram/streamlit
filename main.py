@@ -7,7 +7,6 @@ import altair as alt
 import base64
 import matplotlib.pyplot as plt
 from pathlib import Path
-from correlation_analysis import corr_analysis
 import seaborn as sns
 
 st.set_page_config(layout="wide",
@@ -74,25 +73,20 @@ with header:
 firstly = st.beta_container()
 col1_1, col1_2 = st.beta_columns((7,6))
 with firstly:
-    st.header("A final update on the project")
+    st.header("Final updates on the project")
     with col1_1:
-        p1 = """This site is getting a final update. 
-        It will remain static after today, however, analysis on the results are available below."""
-
-        link = '[project repository](https://github.com/Gibsonogram/streamlit)'
+        link = '[Project repository](https://github.com/Gibsonogram/streamlit)'
         results = f"""The question I set out to answer was this: 
         Is there a correlation between the movement of a stock, and the times it was mentioned on r/wallstreetbets leading up to that?
         After months of gathering data (and occasionally using this bots advice) I have enough information to stop the experiment. 
-        Below is an analysis on this central question and relevant information about the data that was gathered.
-        Additionally, I wanted to see if I could find a viable trading stategy based on these results. 
-        Here is a link to the {link}."""
+        Below is some ongoing analysis on this central question and relevant information about the data that was gathered.
+        Additionally, I wanted to see if I could find a viable trading stategy based on these results... Which remains to be found. {link}."""
 
-        about_data = """The data obtained for this project is from a simple web scraper. Using the python reddit api, I scraped wsb for mentions of stocks and general sentiment. 
+        about_data = """The data obtained for this project is from a simple web scraper. Using the python reddit API, I scraped wsb for mentions of stocks and general sentiment. 
         The bot was run roughly once a day, (N=50) toward the end of the Nasdaq trading period. The stock data was obtained with yahoo finance in the form of daily closes. 
         The following analyses were done after the bot had collected data points from 4 March, 21 -- 12 July, 21."""
 
         col1_1.subheader(date)
-        st.write(p1)
         st.subheader("Results")
         st.write(results)
         st.subheader('About the data')
@@ -132,7 +126,6 @@ with firstly:
         def chart_current():
             st.altair_chart(avg_mentions_chart, use_container_width=True)
         chart_current()
-
 
 secondly = st.beta_container()
 col2_1, col2_2 = st.beta_columns((1,6))
@@ -197,8 +190,8 @@ with analysis:
             """)
     with col3_1:
         st.subheader("highly mentioned stocks")
-        high_mention_corr_v = [0.175, 0.142,  0.05, -0.03, 0.01]
-        high_mention_corr_d = ['1', '2', '5', '7', '14']
+        high_mention_corr_v = [0.215, 0.215,  0.167, 0.005, 0.05]
+        high_mention_corr_d = ['1', '2', '5', '7', '12']
         high_mention_corr = pd.DataFrame()
         high_mention_corr['delay(days)'] = high_mention_corr_d 
         high_mention_corr['Pearson Correlation Coefficient'] = high_mention_corr_v
@@ -213,20 +206,18 @@ with analysis:
         
     with col3_2:
         st.write("""
-            The first thing I did was take the daily closes of each stock and difference them. 
-            This results in how much they moved each day.
-            I then shifted the mentions data by a single day.
-            This means I was comparing the mentions of the previous day, with the amount the stock truly moved the next day. 
+            Taking the difference of each close period, we get the price change between closes. 
+            We then shift this by different periods, to see if there is a correlation with how often that stock was mentioned prior on r/wsb.
             I first tested the correlation for the grandest of the meme stocks, that is, GameStop.
-            The results of a correlation between price change and previous day's mentions shows a clear lack of any correlation, 
-            with a Pearson correlation coefficient (C) of 0.05.
+            The results for any period delay period highly disappointing.
+            The highest correlation occurs with a 12 period delay, giving a Pearson correlation coefficient (C) of 0.18
             """)
 
         st.write("""
-            I didn't truly have hope for the highly mentioned stocks on r/wsb.
-            I assumed that these memified stocks would fail to have a correlation. 
-            I also thought the low-mention stocks would fail to have a correlation, due to less overall interest and the sheer odds of singular mentions correctly identifying trends.
-            I did believe that stocks with a maximum of between 5 and 10 mentions would have the highest correlation.
+            I assumed memified stocks such as GME would fail to have any correlation. 
+            I also hypothesized that low-mention stocks would fail to have any correlation, due to less overall interest.
+            THIS IS WHERE I STOPPED EDITING
+
             This is where it gets interesting, because as an average, I was very wrong. 
             As you can see on the left, these stocks have the lowest overall correlation with price data. 
             However, the deviance in Correlation was higher among them. 
@@ -236,18 +227,19 @@ with analysis:
 
             """)
     with col3_3:
+        # top 5 -- 15
         st.subheader('mid-level mention stocks')
-        med_mention_corr_v = [0.062, 0.023,  0.01, -0.003]
-        med_mention_corr_d = ['1', '5', '7', '14']
+        med_mention_corr_v = [0.085, 0.085,  0.01, -0.008,  0.005]
+        med_mention_corr_d = ['1', '2', '5', '7', '12']
         med_mention_corr = pd.DataFrame()
         med_mention_corr['delay(days)'] = med_mention_corr_d 
         med_mention_corr['Pearson Correlation Coefficient'] = med_mention_corr_v
         st.table(med_mention_corr.assign(hack='').set_index('hack'))
         
         fig, ax = plt.subplots()
-        sns.scatterplot('NVDA Mentions', 'Shifted 3', data=nvda, x_jitter=0.2, y_jitter=0.3)
+        sns.scatterplot('NVDA Mentions', 'Shifted 8', data=nvda, x_jitter=0.2, y_jitter=0.3)
         ax.set_ylabel('price')
-        ax.set_xlabel('mentions 3 days prior on r/wsb')
+        ax.set_xlabel('mentions 8 days prior on r/wsb')
         plt.title('NVDA')
         st.pyplot(fig)
 

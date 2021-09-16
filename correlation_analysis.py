@@ -1,5 +1,5 @@
 from matplotlib import rcParams
-from numpy.lib.function_base import diff
+from numpy.lib.function_base import corrcoef, diff
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,10 +10,9 @@ from bt_wrangler import big_tuna_wrangler
 
 # maybe build a correlation finder...
 
-def corr_analysis(ticker, shift_num):
+def diff_n_shift(ticker, shift_num):
     """
-    Gets Pearson correlation coef. between stock mentions and designated stock price change.
-
+    Differences and shifts series.
     Returns: DataFrame with all columns of interest
     
     Params
@@ -38,24 +37,48 @@ def corr_analysis(ticker, shift_num):
     df = df.drop('Shifted', axis = 1)
     df = df.fillna(0)
 
-    x = np.corrcoef(df.iloc[shift_num+1:, 3].values, df.iloc[shift_num+1:, 2])
     return df.iloc[shift_num+1:, :].reset_index(drop=True)
 
-num = 12
-stock = 'GME'
 
-res = corr_analysis(stock, num)
-x = np.corrcoef(res[f'{stock} Mentions'], res[f'Shifted {num}'])
-print(round(x[0][1], 4))
-# res.to_csv(f'correlation_dataframes/gme_data.csv', index=False)
+def corr_analysis(ticker):
+    ticker = str(ticker).upper()
+    correlations = []
+    for x in range(1, 14):
+        df = diff_n_shift(ticker, x)
+        # col2 is mentions, col4 is shifted differenced closes.
+        corr = np.corrcoef(df.iloc[:, 2], df.iloc[:, 4])
+        correlations.append(round(corr[0][1], 4))
+    
+    delays = np.arange(1, 14)
+    res = pd.DataFrame()
+    res['Lag Period'] = delays
+    res[f'{ticker} PCC'] = correlations
+    return res
+
+
+def corr_avg(ls_of_tickers):
+    corr_values = pd.DataFrame(index=np.arange(1, 14))
+
+    for ticker in ls_of_tickers:
+        df = corr_analysis(ticker)
+        corr_values[f'{ticker}'] = df[f'{ticker} PCC'].values
+
+    corr_values['Mean'] = round(corr_values.mean(axis=1), 3)
+    return corr_values
 
 
 
 
+big_tuna = pd.read_csv('wsb_ticker_mentions.csv')
+big_tuna = big_tuna.iloc[:, 5:15]
+# print(big_tuna.columns)
 
+high_mentions = ['SPCE', 'AMC', 'WISH', 'GME', 'NVDA']
+mid_mentions = ['AAPL', 'CLF', 'BA', 'SHEN', 'TSLA', 'CLOV', 'CLNE', 'AMD', 'PUBM', 'NIO']
+x = corr_avg(mid_mentions)
+print(x)
 
-
-
+# res.to_csv(f'correlation_dataframes/nvda_data.csv', index=False)
 
 # plotting
 """
