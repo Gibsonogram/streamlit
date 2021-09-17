@@ -1,5 +1,5 @@
 from matplotlib import rcParams
-from numpy.lib.function_base import corrcoef, diff
+from numpy.lib.function_base import average, corrcoef, diff
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -70,19 +70,39 @@ def corr_avg(ls_of_tickers):
 
 
 big_tuna = pd.read_csv('wsb_ticker_mentions.csv')
-big_tuna = big_tuna.iloc[:, 5:15]
-# print(big_tuna.columns)
 
-high_mentions = ['SPCE', 'AMC', 'WISH', 'GME', 'NVDA']
-mid_mentions = ['AAPL', 'CLF', 'BA', 'SHEN', 'TSLA', 'CLOV', 'CLNE', 'AMD', 'PUBM', 'NIO']
-x = corr_avg(mid_mentions)
-print(x)
+top_30 = ['GME', 'AMC', 'UWMC', 'PLTR', 'CLOV', 'BB', 'MVIS', 'RKT', 'TSLA', 'SPCE', 
+        'AAPL', 'AMD', 'ASO', 'CLF', 'CLNE', 'NIO', 'SPY', 'TLRY', 'VIAC', 'WISH',
+        'NOK', 'GOEV', 'CRSR','NVDA', 'FUBO', 'MD', 'BA', 'RIOT', 'BABA', 'UNFI']
+high_mentions = top_30[:10]
+mid_mentions = top_30[10:20]
+
+# finding highest avg mentions.
+average_mentions = pd.DataFrame(index = big_tuna.columns[:-1])
+avg_ls = []
+big_tuna = big_tuna.iloc[:, :-1]
+for col in big_tuna:
+    col_sum = 0
+    for item in big_tuna[col]:
+        col_sum += item
+    avg = round(col_sum / len(big_tuna),2)
+    avg_ls.append(avg)
+
+average_mentions['Avg Mentions'] = avg_ls
+average_mentions = average_mentions.sort_values(by='Avg Mentions', ascending=False)
+#print(average_mentions[20:30])
+
+
+# x = corr_avg(top_30[:10])
+# top_30_avgs = x['Mean']
+# print(top_30_avgs)
+
+
 
 # res.to_csv(f'correlation_dataframes/nvda_data.csv', index=False)
 
 # plotting
 """
-
 fig, ax1 = plt.subplots()
 
 color = 'tab:red'

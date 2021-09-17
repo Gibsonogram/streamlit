@@ -1,3 +1,5 @@
+from altair.vegalite.v4.schema.core import TickCount
+from seaborn.axisgrid import Grid
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -189,8 +191,9 @@ with analysis:
             With the wsb mentions delayed over different time periods, we can see if there is any true correlation with price data.
             """)
     with col3_1:
+        # top 10
         st.subheader("highly mentioned stocks")
-        high_mention_corr_v = [0.215, 0.215,  0.167, 0.005, 0.05]
+        high_mention_corr_v = [0.168, 0.143,  0.053, 0.012, 0.018]
         high_mention_corr_d = ['1', '2', '5', '7', '12']
         high_mention_corr = pd.DataFrame()
         high_mention_corr['delay(days)'] = high_mention_corr_d 
@@ -214,22 +217,22 @@ with analysis:
             """)
 
         st.write("""
-            I assumed memified stocks such as GME would fail to have any correlation. 
-            I also hypothesized that low-mention stocks would fail to have any correlation, due to less overall interest.
-            THIS IS WHERE I STOPPED EDITING
-
-            This is where it gets interesting, because as an average, I was very wrong. 
-            As you can see on the left, these stocks have the lowest overall correlation with price data. 
-            However, the deviance in Correlation was higher among them. 
-            With a four day delay, (this is roughly one trading week) there were stonger correlations.
-            For example, the NVDA plot to the right, shows C = 0.3, while ITUB had C = 0.54. 
-            Others had a strong negative correlation, such as WOOF with C = -0.23.
-
+            I deemed the most popular stocks, those with the highest average mentions.
+            This is the most accurate metric for popularity over the entire period. 
+            As you can see on the left, the ten most highly mentioned stocks, which include, 
+            most of which are included in the bar chart above, have low average correlation. The highest is with a single day delay at C = 0.17. 
+            This is still far below the threshold for statistical significance. The story with the next 10 most popular stocks on the left, 
+            (mid-level mentions) is similar.
+            It is worth noting that some stocks have a very high PCC value with r/wsb mentions, 
+            such as ITUB with C = 0.565 with a 4 day delay, 
+            this is the exception rather than the rule. 
+            The top 30 stocks have their highest average correlation with a delay of two days with C = 0.11. 
+            With this, we can accept that while there is perhaps some correlation, it is certainly not meaningful enough to keep track of.
             """)
     with col3_3:
-        # top 5 -- 15
+        # top 10 -- 20
         st.subheader('mid-level mention stocks')
-        med_mention_corr_v = [0.085, 0.085,  0.01, -0.008,  0.005]
+        med_mention_corr_v = [0.083, 0.101,  -0.029, -0.076,  -0.065]
         med_mention_corr_d = ['1', '2', '5', '7', '12']
         med_mention_corr = pd.DataFrame()
         med_mention_corr['delay(days)'] = med_mention_corr_d 
@@ -245,19 +248,26 @@ with analysis:
 
 analysis_closer = st.beta_container()
 with analysis_closer:
-    st.subheader('Remarks on averaged correlations')
+    st.subheader('Remarks on These Correlations')
     st.write(
         """
         With the above averages in correlation, It makes sense that there is nothing significant. 
-        There are some outliers, which I will look at more closely below. 
-        I also want to look next at specific changes in mentions of a stock.
-        It makes sense that across individual price changes, we have a low correlation. 
-        If it were statistically significant, then everyone would see this as a viable strategy.
-        It remains to be seen if there is some correlation between big shifts in mention number 
-        (which I'll refer to in the next section as "mention velocity") and change in close prices. 
-        Looking at the history charts above, it is clear that some stocks become sudden beacons on r/wsb.
-        I want to look more closely at these sudden changes.
+        There are some outliers but there seems to be no viable trading strategy.
+        Below is a graph illustrating this, keeping in mind that a level of statisical significance for (C) is around 0.6 to 0.8. 
+        With this all in mind, it would be interesting to see what would have happened if one attempted to trade on these stocks anyway.
+        I will be doing some analysis on those strategies and their win/loss ratios in the future. Stay tuned for that. 
         """)
+    
+    top_10_corr = pd.DataFrame()
+    top_10_corr['Avg Corr'] = [0.168, 0.143, 0.050, 0.065, 0.053, 0.019,0.012, -0.050, -0.032, -0.075, -0.036, 0.018, 0.025]
+    top_10_corr['Delay Period'] = np.arange(1, 14)
+
+    corr_chart = alt.Chart(top_10_corr, title='Avg. Correlations of top 10 stocks.').mark_line().encode(
+        x = alt.X('Delay Period:Q', axis = alt.Axis(tickCount=13, grid=False)),
+        y = 'Avg Corr'
+    )
+    line = alt.Chart(pd.DataFrame({'Avg Corr': [0]})).mark_rule().encode(y='Avg Corr')
+    st.altair_chart(corr_chart+line, use_container_width=True)
 
 analysis_continued = st.beta_container()
 col4_1 = st.beta_columns((1,1)) 
